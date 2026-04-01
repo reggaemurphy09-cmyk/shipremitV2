@@ -349,10 +349,11 @@ input:focus, select:focus, textarea:focus {
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  display: block;
+  -webkit-tap-highlight-color: transparent;
 }
 .upload-zone:hover { border-color: var(--brass); background: rgba(201,148,58,0.04); }
 .upload-zone.has-file { border-color: var(--success); background: rgba(76,175,130,0.05); }
-.upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .upload-icon  { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
 .upload-text  { font-size: 0.85rem; color: var(--muted); }
 .upload-hint  { font-size: 0.72rem; color: rgba(138,154,181,0.5); margin-top: 4px; }
@@ -739,15 +740,16 @@ input:focus, select:focus, textarea:focus {
         <!-- Cash photo upload -->
         <div id="cashUploadSection" class="field">
           <label>Upload Cash Photo</label>
-          <div class="upload-zone" id="uploadZone" onclick="document.getElementById('cashPhoto').click()">
-            <input type="file" id="cashPhoto" accept="image/*" capture="environment" onchange="handlePhotoUpload(event)"/>
+          <label class="upload-zone" id="uploadZone" for="cashPhoto">
+            <input type="file" id="cashPhoto" accept="image/*" onchange="handlePhotoUpload(event)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"/>
             <span class="upload-icon">📷</span>
-            <div class="upload-text">Tap to take a photo or upload</div>
+            <div class="upload-text">Tap to take a photo or choose from library</div>
             <div class="upload-hint">JPG, PNG · Max 5MB</div>
-          </div>
+          </label>
           <div class="upload-preview" id="uploadPreview">
             <img id="previewImg" src="" alt="Cash photo"/>
             <div class="upload-filename" id="uploadFilename"></div>
+            <button type="button" onclick="clearPhoto()" style="margin-top:6px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:0.75rem;cursor:pointer;">✕ Remove photo</button>
           </div>
         </div>
 
@@ -1020,6 +1022,16 @@ input:focus, select:focus, textarea:focus {
         document.getElementById('uploadZone').classList.add('has-file');
       };
       reader.readAsDataURL(file);
+    }
+
+    function clearPhoto() {
+      uploadedFile = null;
+      uploadedPhotoURL = null;
+      document.getElementById('cashPhoto').value = '';
+      document.getElementById('previewImg').src = '';
+      document.getElementById('uploadPreview').style.display = 'none';
+      document.getElementById('uploadFilename').textContent = '';
+      document.getElementById('uploadZone').classList.remove('has-file');
     }
 
     // ── Step navigation ───────────────────────────────────────────────────────
