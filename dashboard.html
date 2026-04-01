@@ -939,12 +939,51 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       }).join('');
     }
 
-    // ── Exchange rate (mock / placeholder) ───────────────────────────────────
-    function loadExchangeRate() {
-      // Placeholder — replace with real API (e.g. ExchangeRate-API, Wise)
-      const rate = (56.20 + (Math.random() * 0.4 - 0.2)).toFixed(2);
-      document.getElementById('rateValue').textContent = '₱ ' + rate;
-      document.getElementById('rateTime').textContent  = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    // ── Exchange rate — reads from Firebase settings ───────────────────────────
+    async function loadExchangeRate() {
+      try {
+        const snap = await db.ref('settings').once('value');
+        const s = snap.val() || {};
+        const rate = parseFloat(s.exchangeRate || 56.20).toFixed(2);
+        document.getElementById('rateValue').textContent = '₱ ' + rate;
+        document.getElementById('rateTime').textContent  = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+        // Show announcement if set
+        if (s.announcement && s.announcement.trim()) {
+          showAnnouncement(s.announcement.trim());
+        }
+      } catch(e) {
+        document.getElementById('rateValue').textContent = '₱ 56.20';
+        document.getElementById('rateTime').textContent  = '—';
+      }
+    }
+
+    function showAnnouncement(msg) {
+      // Create announcement banner if not already there
+      if (document.getElementById('announcementBanner')) return;
+      const banner = document.createElement('div');
+      banner.id = 'announcementBanner';
+      banner.style.cssText = `
+        background: rgba(201,148,58,0.12);
+        border: 1px solid rgba(201,148,58,0.35);
+        border-radius: 10px;
+        padding: 10px 16px;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: #e8b85a;
+        -webkit-text-fill-color: #e8b85a;
+      `;
+      banner.innerHTML = `
+        <span style="font-size:1.1rem;flex-shrink:0">📢</span>
+        <span style="flex:1;color:#f0ece3;-webkit-text-fill-color:#f0ece3">${escHtml(msg)}</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8a9ab5;cursor:pointer;font-size:16px;padding:0;flex-shrink:0">✕</button>
+      `;
+      // Insert before stats grid
+      const statsGrid = document.querySelector('.stats-grid');
+      if (statsGrid) statsGrid.parentNode.insertBefore(banner, statsGrid);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
