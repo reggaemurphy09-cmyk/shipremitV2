@@ -729,22 +729,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
       </select>
     </div>
 
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Rank / Vessel</th>
-            <th>Balance</th>
-            <th>Transactions</th>
-            <th>Joined</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="userTableBody"></tbody>
-      </table>
-    </div>
+    <div id="userCardList" style="padding:0.5rem 0"></div>
 
     <div class="pagination">
       <span class="page-info" id="userPageInfo">—</span>
@@ -1152,39 +1137,53 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
       document.getElementById('userPageInfo').textContent =
         total ? `Showing ${start+1}–${Math.min(userPage*PAGE,total)} of ${total}` : 'No results';
 
-      const tbody = document.getElementById('userTableBody');
+      const container = document.getElementById('userCardList');
+
       if (!slice.length) {
-        tbody.innerHTML = `<tr><td colspan="7"><div class="empty">
+        container.innerHTML = `<div class="empty">
           <span class="empty-icon">👥</span>
           <div class="empty-title">No users found</div>
           <div class="empty-sub">Try adjusting your search.</div>
-        </div></td></tr>`;
-      } else {
-        tbody.innerHTML = slice.map(u => {
-          const txCount = allTx.filter(t => t.senderUid === u.uid).length;
-          const bal = parseFloat(u.balance || 0);
-          return `<tr onclick="openUserModal('${u.uid}')">
-            <td>
-              <div class="user-cell">
-                <div class="u-avatar">${(u.fullName||u.email||'?').charAt(0).toUpperCase()}</div>
-                <div>
-                  <div class="tx-name">${escHtml(u.fullName||'—')}</div>
-                  <div class="tx-sub">${escHtml(u.email||'')}</div>
-                </div>
-              </div>
-            </td>
-            <td><div class="tx-name">${escHtml(u.rank||'—')}</div><div class="tx-sub">${escHtml(u.vesselName||'—')}</div></td>
-            <td><span style="color:${bal>0?'#4caf82':'#8a9ab5'};font-weight:600;-webkit-text-fill-color:${bal>0?'#4caf82':'#8a9ab5'}">$${fmt(bal)}</span></td>
-            <td>${txCount}</td>
-            <td>${fmtDate(u.createdAt)}</td>
-            <td><span class="badge b-${u.role||'sender'}">${cap(u.role||'sender')}</span></td>
-            <td onclick="event.stopPropagation()">
-              <button class="act-btn view" onclick="openUserModal('${u.uid}')">View</button>
-              <button class="act-btn approve" onclick="openTopUp('${u.uid}','${escJ(u.fullName||u.email||'User')}',${bal})">💰 Top Up</button>
-            </td>
-          </tr>`;
-        }).join('');
+        </div>`;
+        return;
       }
+
+      container.innerHTML = slice.map(u => {
+        const txCount = allTx.filter(t => t.senderUid === u.uid).length;
+        const bal = parseFloat(u.balance || 0);
+        const initial = (u.fullName||u.email||'?').charAt(0).toUpperCase();
+        const balColor = bal > 0 ? '#4caf82' : '#8a9ab5';
+        return `
+          <div onclick="openUserModal('${u.uid}')"
+            style="display:flex;align-items:center;gap:12px;padding:14px 1.25rem;border-bottom:1px solid rgba(201,148,58,0.08);cursor:pointer;transition:background 0.15s;"
+            onmouseover="this.style.background='rgba(201,148,58,0.05)'"
+            onmouseout="this.style.background=''">
+
+            <div style="width:40px;height:40px;border-radius:50%;background:#162545;border:1px solid rgba(201,148,58,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#e8b85a;-webkit-text-fill-color:#e8b85a;flex-shrink:0">
+              ${initial}
+            </div>
+
+            <div style="flex:1;min-width:0">
+              <div style="font-size:0.88rem;font-weight:500;color:#f0ece3;-webkit-text-fill-color:#f0ece3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${escHtml(u.fullName||'—')}
+              </div>
+              <div style="font-size:0.72rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${escHtml(u.email||'')} · ${escHtml(u.rank||'Seafarer')}
+              </div>
+            </div>
+
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:0.9rem;font-weight:700;color:${balColor};-webkit-text-fill-color:${balColor}">
+                $${fmt(bal)}
+              </div>
+              <div style="font-size:0.68rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-top:2px">
+                ${txCount} tx · <span style="color:${u.role==='admin'?'#ff9a9a':'#7eb8f7'};-webkit-text-fill-color:${u.role==='admin'?'#ff9a9a':'#7eb8f7'}">${cap(u.role||'sender')}</span>
+              </div>
+            </div>
+
+            <div style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;font-size:16px;flex-shrink:0">›</div>
+          </div>`;
+      }).join('');
 
       renderPagination('user', total, pages);
     }
