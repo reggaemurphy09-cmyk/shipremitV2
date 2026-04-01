@@ -247,9 +247,12 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
 /* ── Table ── */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; min-width: 500px; }
-td, td * { color: #f0ece3 !important; -webkit-text-fill-color: #f0ece3 !important; }
-td .tx-sub, td .tx-php, td .tx-date { color: #8a9ab5 !important; -webkit-text-fill-color: #8a9ab5 !important; }
-td .tx-ref { color: #c9943a !important; -webkit-text-fill-color: #c9943a !important; }
+tbody td { color: #f0ece3; -webkit-text-fill-color: #f0ece3; }
+tbody td .tx-name { color: #f0ece3 !important; -webkit-text-fill-color: #f0ece3 !important; }
+tbody td .tx-sub  { color: #8a9ab5 !important; -webkit-text-fill-color: #8a9ab5 !important; }
+tbody td .tx-ref  { color: #c9943a !important; -webkit-text-fill-color: #c9943a !important; }
+tbody td .tx-amt  { color: #f0ece3 !important; -webkit-text-fill-color: #f0ece3 !important; }
+tbody td .tx-php  { color: #8a9ab5 !important; -webkit-text-fill-color: #8a9ab5 !important; }
 th {
   font-size: 0.67rem; color: #8a9ab5;
   letter-spacing: 0.08em; text-transform: uppercase;
@@ -456,7 +459,10 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
   width: 32px; height: 32px; border-radius: 50%;
   background: #162545; border: 1px solid rgba(201,148,58,0.2);
   display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600; color: #e8b85a; flex-shrink: 0;
+  font-size: 13px; font-weight: 600;
+  color: #e8b85a !important;
+  -webkit-text-fill-color: #e8b85a !important;
+  flex-shrink: 0;
 }
 .user-cell { display: flex; align-items: center; gap: 9px; }
 
@@ -1275,7 +1281,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
               </div>
             </td>
             <td><div class="tx-name">${escHtml(u.rank||'—')}</div><div class="tx-sub">${escHtml(u.vesselName||'—')}</div></td>
-            <td><span style="color:${bal>0?'#4caf82':'#8a9ab5'} !important;-webkit-text-fill-color:${bal>0?'#4caf82':'#8a9ab5'} !important;font-weight:600">$${fmt(bal)}</span></td>
+            <td><span style="color:${bal>0?'#4caf82':'#8a9ab5'};font-weight:600;-webkit-text-fill-color:${bal>0?'#4caf82':'#8a9ab5'}">$${fmt(bal)}</span></td>
             <td>${txCount}</td>
             <td>${fmtDate(u.createdAt)}</td>
             <td><span class="badge b-${u.role||'sender'}">${cap(u.role||'sender')}</span></td>
