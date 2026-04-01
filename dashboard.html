@@ -389,7 +389,7 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
 .tx-empty {
   padding: 2.5rem 1.25rem;
   text-align: center;
-  color: var(--muted);
+  color: #8a9ab5;
   font-size: 0.85rem;
 }
 .tx-empty .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.4; }
@@ -885,17 +885,14 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         });
 
         // Update stats
-        document.getElementById('statTotalSent').textContent  = '$' + totalSent.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById('statCount').textContent      = txs.length;
-        document.getElementById('statPending').textContent    = pending;
-        document.getElementById('statMonth').textContent      = '$' + thisMonth.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
-        document.getElementById('statCountSub').textContent   = txs.length === 1 ? '1 remittance' : txs.length + ' remittances';
+        document.getElementById('statTotalSent').textContent = '$' + totalSent.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        document.getElementById('statPending').textContent   = pending;
+        document.getElementById('statMonth').textContent     = '$' + thisMonth.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 
         // Badge
         if (pending > 0) {
           const badge = document.getElementById('pendingBadge');
-          badge.textContent = pending;
-          badge.style.display = 'inline';
+          if (badge) { badge.textContent = pending; badge.style.display = 'inline'; }
         }
 
         // Render recent (last 8)
@@ -904,7 +901,6 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       } catch(e) {
         console.warn('Transactions error:', e);
         document.getElementById('statTotalSent').textContent = '$0.00';
-        document.getElementById('statCount').textContent     = '0';
         document.getElementById('statPending').textContent   = '0';
         document.getElementById('statMonth').textContent     = '$0.00';
         renderTransactions([]);
@@ -918,7 +914,7 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
           <div class="tx-empty">
             <span class="empty-icon">💸</span>
             No transactions yet.<br>
-            <a href="send.html" style="color:var(--brass);text-decoration:none;font-weight:500;">Send your first remittance →</a>
+            <a href="send.html" style="color:#c9943a;text-decoration:none;font-weight:500;">Send your first remittance →</a>
           </div>`;
         return;
       }
