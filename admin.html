@@ -247,6 +247,9 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
 /* ── Table ── */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; min-width: 500px; }
+td, td * { color: #f0ece3 !important; -webkit-text-fill-color: #f0ece3 !important; }
+td .tx-sub, td .tx-php, td .tx-date { color: #8a9ab5 !important; -webkit-text-fill-color: #8a9ab5 !important; }
+td .tx-ref { color: #c9943a !important; -webkit-text-fill-color: #c9943a !important; }
 th {
   font-size: 0.67rem; color: #8a9ab5;
   letter-spacing: 0.08em; text-transform: uppercase;
@@ -1272,7 +1275,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
               </div>
             </td>
             <td><div class="tx-name">${escHtml(u.rank||'—')}</div><div class="tx-sub">${escHtml(u.vesselName||'—')}</div></td>
-            <td><span style="color:${bal>0?'#4caf82':'#8a9ab5'};font-weight:600">$${fmt(bal)}</span></td>
+            <td><span style="color:${bal>0?'#4caf82':'#8a9ab5'} !important;-webkit-text-fill-color:${bal>0?'#4caf82':'#8a9ab5'} !important;font-weight:600">$${fmt(bal)}</span></td>
             <td>${txCount}</td>
             <td>${fmtDate(u.createdAt)}</td>
             <td><span class="badge b-${u.role||'sender'}">${cap(u.role||'sender')}</span></td>
