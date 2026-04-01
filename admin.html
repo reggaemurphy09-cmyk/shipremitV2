@@ -996,34 +996,46 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
     const PAGE = 10;
 
     // ── Auth guard ────────────────────────────────────────────────────────────
+    const loadingFailsafe = setTimeout(hideLoading, 8000);
+
     auth.onAuthStateChanged(async user => {
-      if (!user) { window.location.href = 'login.html'; return; }
-
-      // Check admin role in DB
-      const snap = await db.ref('users/' + user.uid + '/role').once('value');
-      const role = snap.val();
-
-      const isAdmin = (role === 'admin') || (user.email === ADMIN_EMAIL);
-      if (!isAdmin) {
+      if (!user) {
+        clearTimeout(loadingFailsafe);
         hideLoading();
-        document.getElementById('accessDenied').classList.add('show');
+        window.location.href = 'login.html';
         return;
       }
 
-      // Grant admin role if not set
-      if (role !== 'admin') {
-        await db.ref('users/' + user.uid + '/role').set('admin');
-      }
+      try {
+        const snap = await db.ref('users/' + user.uid + '/role').once('value');
+        const role = snap.val();
 
-      document.getElementById('adminName').textContent = user.displayName || user.email || 'Admin';
-      await Promise.all([ loadAllTransactions(), loadAllUsers(), loadSettings() ]);
-      hideLoading();
+        const isAdmin = (role === 'admin') || (user.email === ADMIN_EMAIL);
+        if (!isAdmin) {
+          document.getElementById('accessDenied').classList.add('show');
+          return;
+        }
+
+        if (role !== 'admin') {
+          await db.ref('users/' + user.uid + '/role').set('admin');
+        }
+
+        document.getElementById('adminName').textContent = user.displayName || user.email || 'Admin';
+        await Promise.all([ loadAllTransactions(), loadAllUsers(), loadSettings() ]);
+
+      } catch(e) {
+        console.warn('Admin init error:', e);
+      } finally {
+        clearTimeout(loadingFailsafe);
+        hideLoading();
+      }
     });
 
     function hideLoading() {
       const o = document.getElementById('loadingOverlay');
+      if (!o) return;
       o.classList.add('hidden');
-      setTimeout(() => o.remove(), 500);
+      setTimeout(() => { if (o.parentNode) o.remove(); }, 500);
     }
 
     // ── Load all transactions ─────────────────────────────────────────────────
