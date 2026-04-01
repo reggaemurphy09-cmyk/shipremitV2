@@ -631,16 +631,16 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
+    <span class="stat-icon">💰</span>
+    <div class="stat-label">Available Balance</div>
+    <div class="stat-value" id="statBalance"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
+    <div class="stat-sub" id="statBalanceSub">Your wallet</div>
+  </div>
+  <div class="stat-card">
     <span class="stat-icon">💸</span>
     <div class="stat-label">Total Sent</div>
     <div class="stat-value" id="statTotalSent"><div class="loading-shimmer" style="width:90px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
     <div class="stat-sub" id="statTotalSentSub">All time</div>
-  </div>
-  <div class="stat-card">
-    <span class="stat-icon">📦</span>
-    <div class="stat-label">Transactions</div>
-    <div class="stat-value" id="statCount"><div class="loading-shimmer" style="width:60px;height:26px;border-radius:6px;background:linear-gradient(90deg,#162545 25%,#0f2040 50%,#162545 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;">&nbsp;</div></div>
-    <div class="stat-sub" id="statCountSub">Total remittances</div>
   </div>
   <div class="stat-card">
     <span class="stat-icon">⏳</span>
@@ -835,6 +835,7 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       try {
         const snap = await db.ref('users/' + user.uid).once('value');
         const p    = snap.val() || {};
+        const bal  = parseFloat(p.balance || 0);
 
         document.getElementById('sidebarName').textContent    = p.fullName  || user.displayName || 'User';
         document.getElementById('sidebarRank').textContent    = p.rank      || 'Seafarer';
@@ -846,8 +847,16 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         document.getElementById('profileMobile').textContent  = p.mobile    || '—';
         document.getElementById('greetingSubtitle').textContent =
           p.vesselName ? `Aboard ${p.vesselName} · Here's your overview` : "Here's your remittance overview";
+
+        // Balance stat card
+        const balEl = document.getElementById('statBalance');
+        balEl.textContent = '$' + bal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        balEl.style.color = bal > 0 ? '#4caf82' : '#f0ece3';
+        document.getElementById('statBalanceSub').textContent = bal > 0 ? 'Ready to send' : 'No balance yet';
+
       } catch(e) {
         console.warn('Profile load error:', e);
+        document.getElementById('statBalance').textContent = '$0.00';
       }
     }
 
