@@ -606,6 +606,12 @@ input:focus, select:focus, textarea:focus {
         </div>
         <div class="conv-rate" id="rateNote">Rate: 1 USD = ₱ <span id="rateDisplay">56.20</span> · Updated just now</div>
 
+        <!-- Balance indicator -->
+        <div id="balanceBar" style="display:flex;justify-content:space-between;align-items:center;background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:8px;padding:8px 12px;margin-top:0.75rem;font-size:0.82rem;">
+          <span style="color:#8a9ab5">💰 Your balance</span>
+          <span id="balanceDisplay" style="color:#4caf82;font-weight:600">$0.00</span>
+        </div>
+
         <div style="margin-top:1rem;">
           <div class="fee-row"><span class="fee-label">Send amount</span><span class="fee-val" id="feeBase">$ 0.00</span></div>
           <div class="fee-row"><span class="fee-label">Service fee</span><span class="fee-val" id="feeAmt">$ 0.00</span></div>
@@ -823,6 +829,7 @@ input:focus, select:focus, textarea:focus {
   <div>
     <div class="summary-card">
       <div class="summary-title">Transaction Summary</div>
+      <div class="sum-row"><span class="sum-label">Your balance</span><span class="sum-val" id="sumBalance" style="color:#4caf82">—</span></div>
       <div class="sum-row"><span class="sum-label">You send</span><span class="sum-val" id="sumSend">—</span></div>
       <div class="sum-row"><span class="sum-label">They receive</span><span class="sum-val" id="sumReceive">—</span></div>
       <div class="sum-row"><span class="sum-label">Exchange rate</span><span class="sum-val" id="sumRate">—</span></div>
@@ -876,13 +883,24 @@ input:focus, select:focus, textarea:focus {
     let selectedMethod    = 'cash';
     let uploadedPhotoURL  = null;
     let uploadedFile      = null;
-    const RATE = 56.20;
-    const FEE_PCT = 0.015; // 1.5%
+    let userBalance       = 0;
+    let RATE    = 56.20;
+    let FEE_PCT = 0.015;
 
     // ── Auth guard ────────────────────────────────────────────────────────────
     auth.onAuthStateChanged(async user => {
       if (!user) { window.location.href = 'login.html'; return; }
       currentUser = user;
+      // Load settings (rate, fee) and user balance in parallel
+      const [settingsSnap, balSnap] = await Promise.all([
+        db.ref('settings').once('value'),
+        db.ref('users/' + user.uid + '/balance').once('value')
+      ]);
+      const s = settingsSnap.val() || {};
+      if (s.exchangeRate) RATE    = parseFloat(s.exchangeRate);
+      if (s.serviceFee)   FEE_PCT = parseFloat(s.serviceFee) / 100;
+      userBalance = parseFloat(balSnap.val() || 0);
+      updateConversion();
       loadSidebarProfile(user);
       loadRecipients(user.uid);
     });
@@ -959,34 +977,54 @@ input:focus, select:focus, textarea:focus {
 
     // ── Amount & conversion ───────────────────────────────────────────────────
     function updateConversion() {
-      const amt  = parseFloat(document.getElementById('sendAmount').value) || 0;
+      const amt  = parseFloat(document.getElementById('sendAmount')?.value) || 0;
       const fee  = +(amt * FEE_PCT).toFixed(2);
       const total= +(amt + fee).toFixed(2);
       const php  = +(amt * RATE).toFixed(2);
 
-      document.getElementById('convSend').textContent    = '$ ' + fmt(amt);
-      document.getElementById('convReceive').textContent = '₱ ' + fmt(php);
-      document.getElementById('rateDisplay').textContent = RATE.toFixed(2);
-      document.getElementById('feeBase').textContent     = '$ ' + fmt(amt);
-      document.getElementById('feeAmt').textContent      = '$ ' + fmt(fee);
-      document.getElementById('feeTotal').textContent    = '$ ' + fmt(total);
+      if (document.getElementById('convSend'))    document.getElementById('convSend').textContent    = '$ ' + fmt(amt);
+      if (document.getElementById('convReceive')) document.getElementById('convReceive').textContent = '₱ ' + fmt(php);
+      if (document.getElementById('rateDisplay')) document.getElementById('rateDisplay').textContent = RATE.toFixed(2);
+      if (document.getElementById('feeBase'))     document.getElementById('feeBase').textContent     = '$ ' + fmt(amt);
+      if (document.getElementById('feeAmt'))      document.getElementById('feeAmt').textContent      = '$ ' + fmt(fee);
+      if (document.getElementById('feeTotal'))    document.getElementById('feeTotal').textContent    = '$ ' + fmt(total);
+
+      // Balance bar
+      const balBar = document.getElementById('balanceBar');
+      const balDisp = document.getElementById('balanceDisplay');
+      if (balDisp) {
+        balDisp.textContent = '$' + fmt(userBalance);
+        balDisp.style.color = userBalance > 0 ? '#4caf82' : '#8a9ab5';
+      }
+      if (balBar && amt > 0) {
+        const sufficient = userBalance >= total;
+        balBar.style.borderColor = sufficient ? 'rgba(76,175,130,0.2)' : 'rgba(224,92,92,0.3)';
+        balBar.style.background  = sufficient ? 'rgba(76,175,130,0.08)' : 'rgba(224,92,92,0.08)';
+        if (balDisp) balDisp.style.color = sufficient ? '#4caf82' : '#e05c5c';
+      }
+
       updateSummary();
     }
 
     function updateSummary() {
-      const amt   = parseFloat(document.getElementById('sendAmount').value) || 0;
+      const amt   = parseFloat(document.getElementById('sendAmount')?.value) || 0;
       const fee   = +(amt * FEE_PCT).toFixed(2);
       const total = +(amt + fee).toFixed(2);
       const php   = +(amt * RATE).toFixed(2);
+      const afterBal = +(userBalance - total).toFixed(2);
 
-      document.getElementById('sumSend').textContent     = amt   ? '$ ' + fmt(amt)   : '—';
-      document.getElementById('sumReceive').textContent  = php   ? '₱ ' + fmt(php)   : '—';
-      document.getElementById('sumRate').textContent     = '1 USD = ₱ ' + RATE.toFixed(2);
-      document.getElementById('sumFee').textContent      = amt   ? '$ ' + fmt(fee)   : '—';
-      document.getElementById('sumTotal').textContent    = total ? '$ ' + fmt(total) : '—';
-      document.getElementById('sumRecipient').textContent= selectedRecipient ? selectedRecipient.name : '—';
-      document.getElementById('sumBank').textContent     = selectedRecipient ? selectedRecipient.bank : '—';
-      document.getElementById('sumMethod').textContent   = methodLabel(selectedMethod);
+      if (document.getElementById('sumBalance')) {
+        document.getElementById('sumBalance').textContent = '$' + fmt(userBalance);
+        document.getElementById('sumBalance').style.color = userBalance > 0 ? '#4caf82' : '#8a9ab5';
+      }
+      if (document.getElementById('sumSend'))      document.getElementById('sumSend').textContent     = amt   ? '$ ' + fmt(amt)   : '—';
+      if (document.getElementById('sumReceive'))   document.getElementById('sumReceive').textContent  = php   ? '₱ ' + fmt(php)   : '—';
+      if (document.getElementById('sumRate'))      document.getElementById('sumRate').textContent     = '1 USD = ₱ ' + RATE.toFixed(2);
+      if (document.getElementById('sumFee'))       document.getElementById('sumFee').textContent      = amt   ? '$ ' + fmt(fee)   : '—';
+      if (document.getElementById('sumTotal'))     document.getElementById('sumTotal').textContent    = total ? '$ ' + fmt(total) : '—';
+      if (document.getElementById('sumRecipient')) document.getElementById('sumRecipient').textContent= selectedRecipient ? selectedRecipient.name : '—';
+      if (document.getElementById('sumBank'))      document.getElementById('sumBank').textContent     = selectedRecipient ? selectedRecipient.bank : '—';
+      if (document.getElementById('sumMethod'))    document.getElementById('sumMethod').textContent   = methodLabel(selectedMethod);
     }
 
     // ── Payment method ────────────────────────────────────────────────────────
@@ -1062,6 +1100,12 @@ input:focus, select:focus, textarea:focus {
         const amt = parseFloat(document.getElementById('sendAmount').value);
         if (!amt || amt < 10)   { showAlert('alert1', 'Minimum send amount is $10.00.'); return false; }
         if (amt > 5000)         { showAlert('alert1', 'Maximum send amount is $5,000.00.'); return false; }
+        const fee   = +(amt * FEE_PCT).toFixed(2);
+        const total = +(amt + fee).toFixed(2);
+        if (userBalance < total) {
+          showAlert('alert1', `Insufficient balance. You have $${fmt(userBalance)} but need $${fmt(total)} (including fee). Please ask admin to top up your balance.`);
+          return false;
+        }
         return true;
       }
       if (s === 2) {
@@ -1154,6 +1198,12 @@ input:focus, select:focus, textarea:focus {
 
         // Generate reference code
         const refCode = 'SR-' + Date.now().toString(36).toUpperCase().slice(-8);
+
+        // Deduct balance
+        const newBalance = +(userBalance - total).toFixed(2);
+        await db.ref('users/' + currentUser.uid + '/balance').set(newBalance);
+        userBalance = newBalance;
+        updateConversion();
 
         // Save transaction to DB
         const txRef = db.ref('transactions').push();
