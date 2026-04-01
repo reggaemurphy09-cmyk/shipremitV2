@@ -513,115 +513,6 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .main { padding: 4.5rem 0.75rem 5rem; }
 }
-
-.photo-thumb {
-  width: 100%; border-radius: 8px; border: 1px solid var(--border);
-  margin-top: 0.5rem; cursor: pointer; transition: opacity 0.2s;
-}
-.photo-thumb:hover { opacity: 0.85; }
-
-/* Status update select inside modal */
-.status-sel {
-  width: 100%;
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  border-radius: 8px; color: var(--white);
-  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-  padding: 9px 12px; outline: none; cursor: pointer; -webkit-appearance: none;
-}
-.status-sel option { background: #0f2040; }
-
-.btn-primary {
-  flex: 1; background: linear-gradient(135deg, var(--brass), var(--brass2));
-  color: #1a0e00; border: none; border-radius: 8px;
-  font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 600;
-  padding: 10px; cursor: pointer; transition: opacity 0.2s, transform 0.15s;
-  box-shadow: 0 4px 14px rgba(201,148,58,0.3); position: relative;
-}
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.btn-primary .spi {
-  display: none; width: 14px; height: 14px;
-  border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00;
-  border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
-}
-.btn-primary.loading .bt { display: none; }
-.btn-primary.loading .spi { display: block; }
-
-.btn-ghost {
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  color: var(--muted); border-radius: 8px;
-  font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
-  padding: 10px 16px; cursor: pointer; transition: all 0.2s;
-}
-.btn-ghost:hover { color: var(--white); border-color: rgba(201,148,58,0.4); }
-
-.btn-danger {
-  background: rgba(224,92,92,0.15); border: 1px solid rgba(224,92,92,0.3);
-  color: var(--danger); border-radius: 8px;
-  font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
-  padding: 10px 16px; cursor: pointer; transition: all 0.2s;
-}
-.btn-danger:hover { background: rgba(224,92,92,0.25); }
-
-/* ── Toast ── */
-.toast {
-  position: fixed; bottom: 1.5rem; right: 1.5rem;
-  background: #162545; border: 1px solid var(--border);
-  border-radius: 10px; padding: 12px 18px;
-  font-size: 0.85rem; color: var(--white);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-  z-index: 1000; transform: translateY(20px); opacity: 0;
-  transition: all 0.3s; pointer-events: none; max-width: 320px;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { border-color: rgba(76,175,130,0.4); color: #7de8b8; }
-.toast.error   { border-color: rgba(224,92,92,0.4);  color: #ff9a9a; }
-
-/* ── Two-col layout for overview ── */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-/* ── Recent activity list ── */
-.activity-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 10px 0; border-bottom: 1px solid rgba(201,148,58,0.06);
-}
-.activity-item:last-child { border-bottom: none; }
-.act-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  flex-shrink: 0; margin-top: 5px;
-}
-.act-text { font-size: 0.82rem; color: var(--white); }
-.act-time { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
-
-/* ── Users table extras ── */
-.u-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--navy3); border: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 600; color: var(--brass2);
-  flex-shrink: 0;
-}
-.user-cell { display: flex; align-items: center; gap: 9px; }
-
-/* ── Responsive ── */
-@media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 800px) {
-  .two-col { grid-template-columns: 1fr; }
-  th:nth-child(4), td:nth-child(4),
-  th:nth-child(5), td:nth-child(5) { display: none; }
-}
-@media (max-width: 680px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main { margin-left: 0; padding: 4.75rem 1rem 5rem; }
-  .mobile-header { display: flex; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .tab-btn { font-size: 0.78rem; padding: 8px 12px; }
-  th:nth-child(3), td:nth-child(3) { display: none; }
-}
-@media (max-width: 420px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-}
 ```
 
   </style>
@@ -739,7 +630,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
     <div class="card">
       <div class="card-head">
         <h3>💸 Recent Transactions</h3>
-        <a href="#" onclick="switchTab('transactions',null)" style="font-size:0.75rem;color:var(--brass);text-decoration:none;">View all →</a>
+        <a href="#" onclick="switchTab('transactions',null)" style="font-size:0.75rem;color:#c9943a;text-decoration:none;">View all →</a>
       </div>
       <div id="ovRecentTx">
         <div style="padding:1.5rem 1.25rem">
@@ -1084,6 +975,8 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
           .map(([uid, u]) => ({ uid, ...u }))
           .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       } catch(e) { allUsers = []; }
+      // Update the user count stat now that allUsers is populated
+      document.getElementById('ovUsers').textContent = allUsers.length;
       applyUserFilters();
       renderOverviewUsers();
     }
@@ -1120,16 +1013,16 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
       if (!recent.length) { el.innerHTML = '<div class="empty"><span class="empty-icon">📭</span><div class="empty-sub">No transactions yet.</div></div>'; return; }
       el.innerHTML = `<table style="width:100%;border-collapse:collapse">
         <thead><tr>
-          <th style="font-size:0.65rem;color:var(--muted);padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border)">Ref</th>
-          <th style="font-size:0.65rem;color:var(--muted);padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border)">Recipient</th>
-          <th style="font-size:0.65rem;color:var(--muted);padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border)">Amount</th>
-          <th style="font-size:0.65rem;color:var(--muted);padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--border)">Status</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Ref</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Recipient</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Amount</th>
+          <th style="font-size:0.65rem;color:#8a9ab5;padding:8px 1.25rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid rgba(201,148,58,0.2)">Status</th>
         </tr></thead>
         <tbody>
           ${recent.map(t => `<tr onclick="openTxModal('${t.id}')" style="cursor:pointer;transition:background 0.15s" onmouseover="this.style.background='rgba(201,148,58,0.04)'" onmouseout="this.style.background=''">
-            <td style="padding:9px 1.25rem;font-size:0.75rem;border-bottom:1px solid rgba(201,148,58,0.05)"><span style="color:var(--brass);font-weight:600">${escHtml(t.refCode||'—')}</span></td>
-            <td style="padding:9px 1.25rem;font-size:0.82rem;border-bottom:1px solid rgba(201,148,58,0.05)">${escHtml(t.recipientName||'—')}</td>
-            <td style="padding:9px 1.25rem;font-size:0.82rem;font-weight:600;border-bottom:1px solid rgba(201,148,58,0.05)">$${fmt(t.amount||0)}</td>
+            <td style="padding:9px 1.25rem;font-size:0.75rem;color:#f0ece3;-webkit-text-fill-color:#f0ece3;border-bottom:1px solid rgba(201,148,58,0.05)"><span style="color:#c9943a;-webkit-text-fill-color:#c9943a;font-weight:600">${escHtml(t.refCode||'—')}</span></td>
+            <td style="padding:9px 1.25rem;font-size:0.82rem;color:#f0ece3;-webkit-text-fill-color:#f0ece3;border-bottom:1px solid rgba(201,148,58,0.05)">${escHtml(t.recipientName||'—')}</td>
+            <td style="padding:9px 1.25rem;font-size:0.82rem;font-weight:600;color:#f0ece3;-webkit-text-fill-color:#f0ece3;border-bottom:1px solid rgba(201,148,58,0.05)">$${fmt(t.amount||0)}</td>
             <td style="padding:9px 1.25rem;border-bottom:1px solid rgba(201,148,58,0.05)"><span class="badge b-${t.status||'pending'}">${cap(t.status||'pending')}</span></td>
           </tr>`).join('')}
         </tbody></table>`;
@@ -1138,7 +1031,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
     function renderOverviewUsers() {
       const el = document.getElementById('ovRecentUsers');
       const recent = allUsers.slice(0, 6);
-      if (!recent.length) { el.innerHTML = '<div style="color:var(--muted);font-size:0.82rem">No users yet.</div>'; return; }
+      if (!recent.length) { el.innerHTML = '<div style="color:#8a9ab5;font-size:0.82rem">No users yet.</div>'; return; }
       el.innerHTML = recent.map(u => `
         <div class="activity-item">
           <div class="u-avatar">${(u.fullName||u.email||'?').charAt(0).toUpperCase()}</div>
@@ -1340,7 +1233,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
         <div class="d-section">
           <div class="d-title">Sender</div>
           <div class="d-row"><span class="d-label">Email</span><span class="d-val">${escHtml(t.senderEmail||'—')}</span></div>
-          <div class="d-row"><span class="d-label">UID</span><span class="d-val" style="font-size:0.72rem;color:var(--muted)">${escHtml(t.senderUid||'—')}</span></div>
+          <div class="d-row"><span class="d-label">UID</span><span class="d-val" style="font-size:0.72rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">${escHtml(t.senderUid||'—')}</span></div>
         </div>
         <div class="d-section">
           <div class="d-title">Recipient</div>
@@ -1362,7 +1255,7 @@ tbody tr:hover { background: rgba(201,148,58,0.04); }
         </div>
         <div class="d-section">
           <div class="d-title">Info</div>
-          <div class="d-row"><span class="d-label">Ref Code</span><span class="d-val" style="color:var(--brass2);font-weight:700">${escHtml(t.refCode||'—')}</span></div>
+          <div class="d-row"><span class="d-label">Ref Code</span><span class="d-val" style="color:#e8b85a;-webkit-text-fill-color:#e8b85a;font-weight:700">${escHtml(t.refCode||'—')}</span></div>
           <div class="d-row"><span class="d-label">Date</span><span class="d-val">${fmtDateFull(t.createdAt)}</span></div>
           <div class="d-row"><span class="d-label">Current Status</span><span class="d-val"><span class="badge b-${t.status||'pending'}">${cap(t.status||'pending')}</span></span></div>
         </div>`;
