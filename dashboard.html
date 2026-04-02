@@ -730,6 +730,14 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
           </div>
           <span class="qa-arrow">›</span>
         </a>
+        <button class="qa-btn" onclick="openTransferModal()" style="width:100%;text-align:left;cursor:pointer;">
+          <div class="qa-icon" style="background:rgba(76,175,130,0.12)">🔄</div>
+          <div class="qa-label">
+            <strong>Transfer to Crew</strong>
+            <small>Send balance to a crewmate</small>
+          </div>
+          <span class="qa-arrow">›</span>
+        </button>
         <a class="qa-btn" href="recipients.html">
           <div class="qa-icon">👥</div>
           <div class="qa-label">
@@ -763,12 +771,98 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
 
   </main>
 
-  <!-- Firebase -->
+  <!-- ── Transfer to Crew Modal ── -->
 
+  <div id="transferModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center;padding:1rem;" onclick="closeTransferModal(event)">
+    <div style="background:#0d1e38;border:1px solid rgba(201,148,58,0.2);border-radius:16px;width:100%;max-width:400px;animation:modal-in 0.3s cubic-bezier(0.22,1,0.36,1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid rgba(201,148,58,0.2)">
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:#f0ece3">🔄 Transfer to Crew</div>
+        <button onclick="closeTransferModalDirect()" style="background:none;border:none;color:#8a9ab5;cursor:pointer;font-size:20px">✕</button>
+      </div>
+      <div style="padding:1.5rem">
+
+```
+    <!-- Balance display -->
+    <div style="background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:10px;padding:0.85rem 1rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:0.78rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Your balance</span>
+      <span id="transferBalanceDisplay" style="font-size:1rem;font-weight:700;color:#4caf82;-webkit-text-fill-color:#4caf82">$0.00</span>
+    </div>
+
+    <!-- Step 1: Email -->
+    <div id="transferStep1">
+      <div style="margin-bottom:1rem">
+        <label style="font-size:0.72rem;color:#e8b85a;-webkit-text-fill-color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px">Recipient Email</label>
+        <input type="email" id="transferEmail" placeholder="crewmate@email.com"
+          style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:9px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:10px 14px;outline:none;-webkit-appearance:none"/>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:0.72rem;color:#e8b85a;-webkit-text-fill-color:#e8b85a;letter-spacing:0.08em;text-transform:uppercase;display:block;margin-bottom:5px">Amount (USD)</label>
+        <div style="position:relative">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#e8b85a;-webkit-text-fill-color:#e8b85a;font-weight:700">$</span>
+          <input type="number" id="transferAmount" placeholder="0.00" min="1" step="0.01"
+            style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);border-radius:9px;color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;padding:10px 12px 10px 28px;outline:none;-webkit-appearance:none"/>
+        </div>
+      </div>
+      <div id="transferAlert" style="display:none;background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:9px 13px;font-size:0.82rem;color:#ff9a9a;-webkit-text-fill-color:#ff9a9a;margin-bottom:0.75rem;text-align:center"></div>
+      <button onclick="lookupTransferUser()" id="transferLookupBtn"
+        style="width:100%;background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
+        Find Crew Member →
+      </button>
+    </div>
+
+    <!-- Step 2: Confirm -->
+    <div id="transferStep2" style="display:none">
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(201,148,58,0.15);border-radius:10px;padding:1rem;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(201,148,58,0.1)">
+          <div style="width:40px;height:40px;border-radius:50%;background:#162545;border:2px solid rgba(201,148,58,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#e8b85a;-webkit-text-fill-color:#e8b85a;flex-shrink:0" id="transferRecipientInitial">?</div>
+          <div>
+            <div style="font-size:0.9rem;font-weight:600;color:#f0ece3;-webkit-text-fill-color:#f0ece3" id="transferRecipientName">—</div>
+            <div style="font-size:0.73rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5" id="transferRecipientRank">—</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:4px 0">
+          <span style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Transfer amount</span>
+          <span style="color:#f0ece3;-webkit-text-fill-color:#f0ece3;font-weight:600" id="transferConfirmAmt">$0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:4px 0">
+          <span style="color:#8a9ab5;-webkit-text-fill-color:#8a9ab5">Your balance after</span>
+          <span style="color:#4caf82;-webkit-text-fill-color:#4caf82;font-weight:600" id="transferConfirmAfter">$0.00</span>
+        </div>
+      </div>
+      <div id="transferAlert2" style="display:none;background:rgba(224,92,92,0.12);border:1px solid rgba(224,92,92,0.3);border-radius:8px;padding:9px 13px;font-size:0.82rem;color:#ff9a9a;-webkit-text-fill-color:#ff9a9a;margin-bottom:0.75rem;text-align:center"></div>
+      <div style="display:flex;gap:0.6rem">
+        <button onclick="backToTransferStep1()"
+          style="flex:0 0 auto;background:rgba(255,255,255,0.05);border:1px solid rgba(201,148,58,0.2);color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:11px 16px;cursor:pointer;">
+          ← Back
+        </button>
+        <button onclick="confirmTransfer()" id="transferConfirmBtn"
+          style="flex:1;background:linear-gradient(135deg,#4caf82,#7de8b8);color:#0a2818;-webkit-text-fill-color:#0a2818;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
+          ✓ Confirm Transfer
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="transferStep3" style="display:none;text-align:center;padding:0.5rem 0">
+      <div style="width:60px;height:60px;border-radius:50%;background:rgba(76,175,130,0.15);border:2px solid #4caf82;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 1rem">✓</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.1rem;color:#f0ece3;margin-bottom:0.4rem">Transfer Sent!</div>
+      <div style="font-size:0.83rem;color:#8a9ab5;-webkit-text-fill-color:#8a9ab5;margin-bottom:1.25rem" id="transferSuccessMsg">Balance transferred successfully.</div>
+      <button onclick="closeTransferModalDirect()"
+        style="width:100%;background:linear-gradient(135deg,#c9943a,#e8b85a);color:#1a0e00;-webkit-text-fill-color:#1a0e00;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;padding:12px;cursor:pointer;">
+        Done
+      </button>
+    </div>
+
+  </div>
+</div>
+```
+
+  </div>
+  <style>
+    @keyframes modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+  </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
@@ -786,6 +880,8 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
     const auth = firebase.auth();
     const db   = firebase.database();
 
+    let currentUser = null;
+
     // ── Auth guard ────────────────────────────────────────────────────────────
     // Failsafe: always hide spinner after 6 seconds
     const loadingFailsafe = setTimeout(hideLoading, 6000);
@@ -797,6 +893,7 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         window.location.href = 'login.html';
         return;
       }
+      currentUser = user;
       initDashboard(user);
     });
 
@@ -1011,7 +1108,141 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
       if (h) h.classList.remove('hide');
     }
 
-    // ── Auto-hide mobile header on scroll ─────────────────────────────────────
+    // ── Transfer to Crew ──────────────────────────────────────────────────────
+    let transferTargetUid  = null;
+    let transferTargetName = null;
+    let myBalance          = 0;
+
+    function openTransferModal() {
+      // Reset to step 1
+      document.getElementById('transferStep1').style.display = 'block';
+      document.getElementById('transferStep2').style.display = 'none';
+      document.getElementById('transferStep3').style.display = 'none';
+      document.getElementById('transferEmail').value  = '';
+      document.getElementById('transferAmount').value = '';
+      hideTransferAlert();
+      // Show current balance
+      const bal = parseFloat(document.getElementById('statBalance').textContent.replace('$','').replace(',','')) || 0;
+      myBalance = bal;
+      document.getElementById('transferBalanceDisplay').textContent = '$' + bal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+      const modal = document.getElementById('transferModal');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTransferModal(e) {
+      if (e.target === document.getElementById('transferModal')) closeTransferModalDirect();
+    }
+    function closeTransferModalDirect() {
+      document.getElementById('transferModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function hideTransferAlert() {
+      document.getElementById('transferAlert').style.display  = 'none';
+      document.getElementById('transferAlert2').style.display = 'none';
+    }
+    function showTransferAlert(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg; el.style.display = 'block';
+    }
+
+    async function lookupTransferUser() {
+      hideTransferAlert();
+      const email = document.getElementById('transferEmail').value.trim().toLowerCase();
+      const amt   = parseFloat(document.getElementById('transferAmount').value);
+      const btn   = document.getElementById('transferLookupBtn');
+
+      if (!email || !email.includes('@')) { showTransferAlert('transferAlert','Enter a valid email address.'); return; }
+      if (!amt || amt <= 0)               { showTransferAlert('transferAlert','Enter a valid amount.'); return; }
+      if (amt > myBalance)                { showTransferAlert('transferAlert',`Insufficient balance. You have $${myBalance.toFixed(2)}.`); return; }
+      if (email === currentUser.email)    { showTransferAlert('transferAlert','You cannot transfer to yourself.'); return; }
+
+      btn.textContent = 'Searching...'; btn.disabled = true;
+
+      try {
+        // Search users by email
+        const snap = await db.ref('users').orderByChild('email').equalTo(email).once('value');
+        const data = snap.val();
+        if (!data) {
+          showTransferAlert('transferAlert', 'No crew member found with that email.');
+          btn.textContent = 'Find Crew Member →'; btn.disabled = false;
+          return;
+        }
+        const [uid, user] = Object.entries(data)[0];
+        transferTargetUid  = uid;
+        transferTargetName = user.fullName || email;
+
+        // Show confirm step
+        document.getElementById('transferRecipientInitial').textContent = transferTargetName.charAt(0).toUpperCase();
+        document.getElementById('transferRecipientName').textContent    = transferTargetName;
+        document.getElementById('transferRecipientRank').textContent    = user.rank || 'Seafarer';
+        document.getElementById('transferConfirmAmt').textContent   = '$' + amt.toFixed(2);
+        document.getElementById('transferConfirmAfter').textContent = '$' + (myBalance - amt).toFixed(2);
+
+        document.getElementById('transferStep1').style.display = 'none';
+        document.getElementById('transferStep2').style.display = 'block';
+
+      } catch(e) {
+        showTransferAlert('transferAlert', 'Error looking up user. Try again.');
+      }
+      btn.textContent = 'Find Crew Member →'; btn.disabled = false;
+    }
+
+    function backToTransferStep1() {
+      document.getElementById('transferStep1').style.display = 'block';
+      document.getElementById('transferStep2').style.display = 'none';
+      hideTransferAlert();
+    }
+
+    async function confirmTransfer() {
+      hideTransferAlert();
+      const amt = parseFloat(document.getElementById('transferAmount').value);
+      const btn = document.getElementById('transferConfirmBtn');
+      btn.disabled = true; btn.textContent = 'Processing...';
+
+      try {
+        // Get latest balances fresh from DB
+        const [senderSnap, recipientSnap] = await Promise.all([
+          db.ref('users/' + currentUser.uid + '/balance').once('value'),
+          db.ref('users/' + transferTargetUid + '/balance').once('value'),
+        ]);
+        const senderBal    = parseFloat(senderSnap.val()    || 0);
+        const recipientBal = parseFloat(recipientSnap.val() || 0);
+
+        if (amt > senderBal) {
+          showTransferAlert('transferAlert2', `Insufficient balance. Current: $${senderBal.toFixed(2)}`);
+          btn.disabled = false; btn.textContent = '✓ Confirm Transfer';
+          return;
+        }
+
+        const newSenderBal    = +(senderBal    - amt).toFixed(2);
+        const newRecipientBal = +(recipientBal + amt).toFixed(2);
+
+        // Atomic update both balances
+        await db.ref().update({
+          ['users/' + currentUser.uid    + '/balance']: newSenderBal,
+          ['users/' + transferTargetUid  + '/balance']: newRecipientBal,
+        });
+
+        // Update local balance display
+        myBalance = newSenderBal;
+        const balEl = document.getElementById('statBalance');
+        balEl.textContent = '$' + newSenderBal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+        balEl.style.color = newSenderBal > 0 ? '#4caf82' : '#f0ece3';
+        document.getElementById('transferBalanceDisplay').textContent = '$' + newSenderBal.toFixed(2);
+
+        // Show success
+        document.getElementById('transferSuccessMsg').textContent =
+          `$${amt.toFixed(2)} sent to ${transferTargetName}. Your new balance: $${newSenderBal.toFixed(2)}`;
+        document.getElementById('transferStep2').style.display = 'none';
+        document.getElementById('transferStep3').style.display = 'block';
+
+      } catch(e) {
+        showTransferAlert('transferAlert2', 'Transfer failed. Please try again.');
+        btn.disabled = false; btn.textContent = '✓ Confirm Transfer';
+      }
+    }
     let lastScroll = 0;
     window.addEventListener('scroll', () => {
       const header = document.querySelector('.mobile-header');
