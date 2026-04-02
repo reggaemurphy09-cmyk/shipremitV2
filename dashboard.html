@@ -1001,10 +1001,14 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
     function openSidebar()  {
       document.getElementById('sidebar').classList.add('open');
       document.getElementById('overlay').classList.add('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.add('hide');
     }
     function closeSidebar() {
       document.getElementById('sidebar').classList.remove('open');
       document.getElementById('overlay').classList.remove('show');
+      const h = document.querySelector('.mobile-header');
+      if (h) h.classList.remove('hide');
     }
 
     // ── Auto-hide mobile header on scroll ─────────────────────────────────────
