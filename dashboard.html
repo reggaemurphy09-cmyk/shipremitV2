@@ -1219,11 +1219,10 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         const newSenderBal    = +(senderBal    - amt).toFixed(2);
         const newRecipientBal = +(recipientBal + amt).toFixed(2);
 
-        // Atomic update both balances
-        await db.ref().update({
-          ['users/' + currentUser.uid    + '/balance']: newSenderBal,
-          ['users/' + transferTargetUid  + '/balance']: newRecipientBal,
-        });
+        // Deduct from sender first (own record — always allowed)
+        await db.ref('users/' + currentUser.uid + '/balance').set(newSenderBal);
+        // Add to recipient (separate write)
+        await db.ref('users/' + transferTargetUid + '/balance').set(newRecipientBal);
 
         // Update local balance display
         myBalance = newSenderBal;
@@ -1239,7 +1238,8 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
         document.getElementById('transferStep3').style.display = 'block';
 
       } catch(e) {
-        showTransferAlert('transferAlert2', 'Transfer failed. Please try again.');
+        console.warn('Transfer error:', e);
+        showTransferAlert('transferAlert2', 'Transfer failed: ' + (e.message || 'Please try again.'));
         btn.disabled = false; btn.textContent = '✓ Confirm Transfer';
       }
     }
