@@ -861,6 +861,13 @@ nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
   </div>
   <style>
     @keyframes modal-in { from{opacity:0;transform:scale(0.95)} to{opacity:1;transform:scale(1)} }
+    #transferEmail:-webkit-autofill,
+    #transferEmail:-webkit-autofill:hover,
+    #transferEmail:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 100px #0f2040 inset !important;
+      -webkit-text-fill-color: #f0ece3 !important;
+      caret-color: #f0ece3;
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
