@@ -324,7 +324,7 @@
         });
         document.getElementById('alertSuccess').textContent='✓ Account created! Redirecting...';
         document.getElementById('alertSuccess').classList.add('show');
-        setTimeout(()=>window.location.href='home.html',2000);
+        setTimeout(()=>window.location.href='dashboard.html',2000);
       }catch(err){
         const map={'auth/email-already-in-use':'This email is already registered.','auth/invalid-email':'Invalid email address.','auth/weak-password':'Password is too weak.','auth/network-request-failed':'Network error.'};
         showAlert('alert3',map[err.code]||'Registration failed. Please try again.');
