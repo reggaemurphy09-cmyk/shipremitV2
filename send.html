@@ -1,516 +1,539 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+  <meta name="apple-mobile-web-app-title" content="ShipRemit"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ShipRemit — Send Money</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-```
-:root {
-  --navy:    #0a1628;
-  --navy2:   #0f2040;
-  --navy3:   #162545;
-  --brass:   #c9943a;
-  --brass2:  #e8b85a;
-  --white:   #f0ece3;
-  --muted:   #8a9ab5;
-  --success: #4caf82;
-  --danger:  #e05c5c;
-  --card-bg: #0f2040;
-  --border:  rgba(201, 148, 58, 0.2);
-  --sidebar-w: 240px;
-}
+    :root {
+      --navy:    #0a1628;
+      --navy2:   #0f2040;
+      --navy3:   #162545;
+      --brass:   #c9943a;
+      --brass2:  #e8b85a;
+      --white:   #f0ece3;
+      --muted:   #8a9ab5;
+      --success: #4caf82;
+      --danger:  #e05c5c;
+      --card-bg: #0f2040;
+      --border:  rgba(201, 148, 58, 0.2);
+      --sidebar-w: 240px;
+    }
 
-body {
-  min-height: 100vh;
-  background: #0a1628;
-  font-family: 'DM Sans', sans-serif;
-  color: #f0ece3;
-  display: flex;
-  overflow-x: hidden;
-}
+    body {
+      min-height: 100vh;
+      background: #0a1628;
+      font-family: 'DM Sans', sans-serif;
+      color: #f0ece3;
+      display: flex;
+      overflow-x: hidden;
+    }
 
-.bg {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
-}
-.grid-lines { display: none; }
+    .bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(160deg, #07101f 0%, #0a1e3d 60%, #061525 100%);
+    }
+    .grid-lines { display: none; }
 
-/* ── Sidebar ── */
-.sidebar {
-  position: fixed; top: 0; left: 0;
-  width: var(--sidebar-w); height: 100vh;
-  background: #060f1e;
-  border-right: 1px solid rgba(201,148,58,0.2);
-  display: flex; flex-direction: column;
-  z-index: 100;
-  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-.sidebar-logo {
-  display: flex; align-items: center; gap: 10px;
-  padding: 1.5rem 1.25rem 1.25rem;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-}
-.logo-icon {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, #c9943a, #e8b85a);
-  border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-  box-shadow: 0 4px 12px rgba(201,148,58,0.3);
-}
-.logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
-.logo-tag  { font-size: 0.62rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w); height: 100vh;
+      background: #060f1e;
+      border-right: 1px solid rgba(201,148,58,0.2);
+      display: flex; flex-direction: column;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .sidebar-logo {
+      display: flex; align-items: center; gap: 10px;
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #c9943a, #e8b85a);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(201,148,58,0.3);
+    }
+    .logo-name { font-family: 'Playfair Display', serif; font-size: 1.15rem; }
+    .logo-tag  { font-size: 0.62rem; color: #c9943a; letter-spacing: 0.1em; text-transform: uppercase; }
 
-nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
-.nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
-.nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 9px 12px; border-radius: 8px;
-  cursor: pointer; color: #8a9ab5;
-  font-size: 0.88rem; text-decoration: none;
-  transition: all 0.2s; margin-bottom: 2px;
-}
-.nav-item:hover { background: rgba(201,148,58,0.08); color: #f0ece3; }
-.nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
-.nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    nav { flex: 1; padding: 1rem 0.75rem; overflow-y: auto; }
+    .nav-label { font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(138,154,181,0.45); padding: 0.75rem 0.5rem 0.4rem; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 8px;
+      cursor: pointer; color: #8a9ab5;
+      font-size: 0.88rem; text-decoration: none;
+      transition: all 0.2s; margin-bottom: 2px;
+    }
+    .nav-item:hover { background: rgba(201,148,58,0.08); color: #f0ece3; }
+    .nav-item.active { background: rgba(201,148,58,0.12); color: #e8b85a; font-weight: 500; }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
 
-.sidebar-user {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; gap: 10px;
-}
-.user-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: #162545; border: 2px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
-}
-.user-name  { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.user-rank  { font-size: 0.7rem; color: #8a9ab5; }
-.logout-btn { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
-.logout-btn:hover { color: #e05c5c; }
+    .sidebar-user {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #162545; border: 2px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+    }
+    .user-name  { font-size: 0.85rem; font-weight: 500; color: #f0ece3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-rank  { font-size: 0.7rem; color: #8a9ab5; }
+    .logout-btn { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 16px; margin-left: auto; transition: color 0.2s; }
+    .logout-btn:hover { color: #e05c5c; }
 
-/* ── Mobile header ── */
-.mobile-header {
-  display: none;
-  position: fixed; top: 0; left: 0; right: 0;
-  height: 56px;
-  background: #060f1e;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-  align-items: center;
-  padding: 0 1rem; gap: 12px;
-  z-index: 200;
-  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-}
-.mobile-header.hide { transform: translateY(-100%); }
-.hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; padding: 4px; }
-.mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
-.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
-.overlay.show { display: block; }
+    /* ── Mobile header ── */
+    .mobile-header {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 56px;
+      background: #060f1e;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+      align-items: center;
+      padding: 0 1rem; gap: 12px;
+      z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+    }
+    .mobile-header.hide { transform: translateY(-100%); }
+    .hamburger { background: none; border: none; color: #8a9ab5; cursor: pointer; font-size: 20px; padding: 4px; }
+    .mobile-logo { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 99; }
+    .overlay.show { display: block; }
 
-/* ── Main ── */
-.main {
-  margin-left: var(--sidebar-w);
-  flex: 1; position: relative; z-index: 1;
-  padding: 2rem 1.5rem 3rem;
-  min-width: 0;
-  width: calc(100% - var(--sidebar-w));
-}
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1; position: relative; z-index: 1;
+      padding: 2rem 1.5rem 3rem;
+      min-width: 0;
+      width: calc(100% - var(--sidebar-w));
+    }
 
-/* ── Page header ── */
-.page-header { margin-bottom: 1.75rem; }
-.back-link {
-  display: inline-flex; align-items: center; gap: 6px;
-  color: #8a9ab5; font-size: 0.82rem;
-  text-decoration: none; margin-bottom: 0.75rem;
-  transition: color 0.2s;
-}
-.back-link:hover { color: #c9943a; }
-.page-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #f0ece3; }
-.page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-top: 3px; }
+    /* ── Page header ── */
+    .page-header { margin-bottom: 1.75rem; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #8a9ab5; font-size: 0.82rem;
+      text-decoration: none; margin-bottom: 0.75rem;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: #c9943a; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #f0ece3; }
+    .page-subtitle { font-size: 0.85rem; color: #8a9ab5; margin-top: 3px; }
 
-/* ── Step progress bar ── */
-.progress-bar {
-  display: flex; align-items: center;
-  gap: 0; margin-bottom: 1.75rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: 4px;
-}
-.progress-bar::-webkit-scrollbar { display: none; }
-.pb-step {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 4px; flex: 1; min-width: 60px;
-}
-.pb-circle {
-  width: 30px; height: 30px; border-radius: 50%;
-  border: 2px solid rgba(201,148,58,0.3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem; font-weight: 600;
-  color: #8a9ab5;
-  background: #162545;
-  transition: all 0.3s; position: relative; z-index: 1;
-  flex-shrink: 0;
-}
-.pb-step.active .pb-circle { border-color: #c9943a; color: #c9943a; background: rgba(201,148,58,0.15); }
-.pb-step.done   .pb-circle { border-color: #4caf82; background: #4caf82; color: #fff; }
-.pb-label { font-size: 0.58rem; color: #8a9ab5; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; white-space: nowrap; }
-.pb-step.active .pb-label { color: #c9943a; }
-.pb-step.done   .pb-label { color: #4caf82; }
-.pb-line { flex: 1; height: 1px; background: rgba(201,148,58,0.2); margin-bottom: 16px; transition: background 0.3s; min-width: 12px; }
-.pb-line.done { background: #4caf82; }
+    /* ── Step progress bar ── */
+    .progress-bar {
+      display: flex; align-items: center;
+      gap: 0; margin-bottom: 1.75rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+    .progress-bar::-webkit-scrollbar { display: none; }
+    .pb-step {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; flex: 1; min-width: 60px;
+    }
+    .pb-circle {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid rgba(201,148,58,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 600;
+      color: #8a9ab5;
+      background: #162545;
+      transition: all 0.3s; position: relative; z-index: 1;
+      flex-shrink: 0;
+    }
+    .pb-step.active .pb-circle { border-color: #c9943a; color: #c9943a; background: rgba(201,148,58,0.15); }
+    .pb-step.done   .pb-circle { border-color: #4caf82; background: #4caf82; color: #fff; }
+    .pb-label { font-size: 0.58rem; color: #8a9ab5; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; white-space: nowrap; }
+    .pb-step.active .pb-label { color: #c9943a; }
+    .pb-step.done   .pb-label { color: #4caf82; }
+    .pb-line { flex: 1; height: 1px; background: rgba(201,148,58,0.2); margin-bottom: 16px; transition: background 0.3s; min-width: 12px; }
+    .pb-line.done { background: #4caf82; }
 
-/* ── Content wrapper ── */
-.send-layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 1.25rem;
-  align-items: start;
-}
+    /* ── Content wrapper ── */
+    .send-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.25rem;
+      align-items: start;
+    }
 
-/* ── Card ── */
-.card {
-  background: #0f2040;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 14px;
-  overflow: hidden;
-}
-.card-head {
-  padding: 1.1rem 1.35rem;
-  border-bottom: 1px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; gap: 10px;
-}
-.card-head h3 { font-size: 0.9rem; font-weight: 600; color: #f0ece3; }
-.card-head .head-icon { font-size: 18px; }
-.card-body { padding: 1.35rem; }
+    /* ── Card ── */
+    .card {
+      background: #0f2040;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .card-head {
+      padding: 1.1rem 1.35rem;
+      border-bottom: 1px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card-head h3 { font-size: 0.9rem; font-weight: 600; color: #f0ece3; }
+    .card-head .head-icon { font-size: 18px; }
+    .card-body { padding: 1.35rem; }
 
-/* ── Panels ── */
-.panel { display: none; }
-.panel.active { display: block; }
+    /* ── Panels ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
 
-/* ── Form fields ── */
-.field { margin-bottom: 1.1rem; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
-.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.85rem; }
+    /* ── Form fields ── */
+    .field { margin-bottom: 1.1rem; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+    .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.85rem; }
 
-label {
-  display: block;
-  font-size: 0.73rem; color: #e8b85a;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  margin-bottom: 5px;
-}
-.input-wrap { position: relative; }
-.input-wrap .icon {
-  position: absolute; left: 12px; top: 50%;
-  transform: translateY(-50%);
-  font-size: 15px; color: #8a9ab5; pointer-events: none;
-}
-input, select, textarea {
-  width: 100%;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(201,148,58,0.25);
-  border-radius: 9px;
-  color: #f0ece3;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.9rem;
-  padding: 10px 12px 10px 38px;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  -webkit-appearance: none;
-  -webkit-text-fill-color: #f0ece3;
-}
-textarea { padding-left: 38px; resize: vertical; min-height: 70px; }
-select option { background: #0f2040; color: #f0ece3; }
-input::placeholder, textarea::placeholder { color: rgba(138,154,181,0.5); -webkit-text-fill-color: rgba(138,154,181,0.5); }
-input:focus, select:focus, textarea:focus {
-  border-color: #c9943a;
-  background: rgba(201,148,58,0.07);
-  box-shadow: 0 0 0 3px rgba(201,148,58,0.12);
-}
-.select-wrap { position: relative; }
-.select-wrap::after {
-  content: '▾'; position: absolute;
-  right: 12px; top: 50%; transform: translateY(-50%);
-  color: #8a9ab5; pointer-events: none; font-size: 12px;
-}
-.select-wrap select { padding-right: 30px; }
+    label {
+      display: block;
+      font-size: 0.73rem; color: #e8b85a;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap .icon {
+      position: absolute; left: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px; color: #8a9ab5; pointer-events: none;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(201,148,58,0.25);
+      border-radius: 9px;
+      color: #f0ece3;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      padding: 10px 12px 10px 38px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      -webkit-text-fill-color: #f0ece3;
+    }
+    textarea { padding-left: 38px; resize: vertical; min-height: 70px; }
+    select option { background: #0f2040; color: #f0ece3; }
+    input::placeholder, textarea::placeholder { color: rgba(138,154,181,0.5); -webkit-text-fill-color: rgba(138,154,181,0.5); }
+    input:focus, select:focus, textarea:focus {
+      border-color: #c9943a;
+      background: rgba(201,148,58,0.07);
+      box-shadow: 0 0 0 3px rgba(201,148,58,0.12);
+    }
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾'; position: absolute;
+      right: 12px; top: 50%; transform: translateY(-50%);
+      color: #8a9ab5; pointer-events: none; font-size: 12px;
+    }
+    .select-wrap select { padding-right: 30px; }
 
-/* ── Amount input ── */
-.amount-wrap { position: relative; }
-.amount-currency {
-  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-  font-size: 1rem; font-weight: 600; color: #e8b85a; pointer-events: none;
-}
-.amount-input {
-  font-size: 1.4rem !important;
-  font-weight: 600 !important;
-  padding-left: 32px !important;
-  letter-spacing: 0.02em;
-}
+    /* ── Amount input ── */
+    .amount-wrap { position: relative; }
+    .amount-currency {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 1rem; font-weight: 600; color: #e8b85a; pointer-events: none;
+    }
+    .amount-input {
+      font-size: 1.4rem !important;
+      font-weight: 600 !important;
+      padding-left: 32px !important;
+      letter-spacing: 0.02em;
+    }
 
-/* ── Conversion display ── */
-.conversion-box {
-  background: rgba(201,148,58,0.07);
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 10px;
-  padding: 1rem 1.1rem;
-  margin-top: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.conv-side { text-align: center; }
-.conv-amount { font-size: 1.15rem; font-weight: 600; color: #f0ece3; }
-.conv-label  { font-size: 0.68rem; color: #8a9ab5; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
-.conv-arrow  { font-size: 1.2rem; color: #c9943a; }
-.conv-rate   { font-size: 0.72rem; color: #8a9ab5; text-align: center; margin-top: 0.5rem; }
+    /* ── Conversion display ── */
+    .conversion-box {
+      background: rgba(201,148,58,0.07);
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .conv-side { text-align: center; }
+    .conv-amount { font-size: 1.15rem; font-weight: 600; color: #f0ece3; }
+    .conv-label  { font-size: 0.68rem; color: #8a9ab5; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+    .conv-arrow  { font-size: 1.2rem; color: #c9943a; }
+    .conv-rate   { font-size: 0.72rem; color: #8a9ab5; text-align: center; margin-top: 0.5rem; }
 
-/* ── Fee breakdown ── */
-.fee-row {
-  display: flex; justify-content: space-between;
-  font-size: 0.82rem; padding: 5px 0;
-  border-bottom: 1px solid rgba(201,148,58,0.07);
-}
-.fee-row:last-child { border-bottom: none; }
-.fee-label { color: #8a9ab5; }
-.fee-val   { color: #f0ece3; font-weight: 500; }
-.fee-val.total { color: #e8b85a; font-size: 0.95rem; font-weight: 600; }
+    /* ── Fee breakdown ── */
+    .fee-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.82rem; padding: 5px 0;
+      border-bottom: 1px solid rgba(201,148,58,0.07);
+    }
+    .fee-row:last-child { border-bottom: none; }
+    .fee-label { color: #8a9ab5; }
+    .fee-val   { color: #f0ece3; font-weight: 500; }
+    .fee-val.total { color: #e8b85a; font-size: 0.95rem; font-weight: 600; }
 
-/* ── Recipient selector ── */
-.recipient-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.75rem; }
-.recipient-card {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 13px;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(255,255,255,0.02);
-}
-.recipient-card:hover { border-color: rgba(201,148,58,0.4); background: rgba(201,148,58,0.05); }
-.recipient-card.selected { border-color: #c9943a; background: rgba(201,148,58,0.08); }
-.rec-avatar {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: #162545; border: 1px solid rgba(201,148,58,0.2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 600; color: #e8b85a;
-  flex-shrink: 0;
-}
-.rec-name  { font-size: 0.88rem; font-weight: 500; }
-.rec-bank  { font-size: 0.73rem; color: #8a9ab5; margin-top: 1px; }
-.rec-check { margin-left: auto; font-size: 18px; color: #c9943a; opacity: 0; transition: opacity 0.2s; }
-.recipient-card.selected .rec-check { opacity: 1; }
+    /* ── Recipient selector ── */
+    .recipient-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.75rem; }
+    .recipient-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 13px;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255,255,255,0.02);
+    }
+    .recipient-card:hover { border-color: rgba(201,148,58,0.4); background: rgba(201,148,58,0.05); }
+    .recipient-card.selected { border-color: #c9943a; background: rgba(201,148,58,0.08); }
+    .rec-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #162545; border: 1px solid rgba(201,148,58,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600; color: #e8b85a;
+      flex-shrink: 0;
+    }
+    .rec-name  { font-size: 0.88rem; font-weight: 500; }
+    .rec-bank  { font-size: 0.73rem; color: #8a9ab5; margin-top: 1px; }
+    .rec-check { margin-left: auto; font-size: 18px; color: #c9943a; opacity: 0; transition: opacity 0.2s; }
+    .recipient-card.selected .rec-check { opacity: 1; }
 
-.add-recipient-btn {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 13px;
-  border: 1px dashed rgba(201,148,58,0.2);
-  border-radius: 10px;
-  color: #8a9ab5; font-size: 0.85rem;
-  cursor: pointer; background: none;
-  width: 100%; font-family: 'DM Sans', sans-serif;
-  transition: all 0.2s;
-}
-.add-recipient-btn:hover { border-color: #c9943a; color: #c9943a; }
+    .add-recipient-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 13px;
+      border: 1px dashed rgba(201,148,58,0.2);
+      border-radius: 10px;
+      color: #8a9ab5; font-size: 0.85rem;
+      cursor: pointer; background: none;
+      width: 100%; font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+    .add-recipient-btn:hover { border-color: #c9943a; color: #c9943a; }
 
-/* ── Payment method ── */
-.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
-.method-card {
-  padding: 12px; border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 10px; cursor: pointer;
-  text-align: center; transition: all 0.2s;
-  background: rgba(255,255,255,0.02);
-}
-.method-card:hover  { border-color: rgba(201,148,58,0.4); }
-.method-card.selected { border-color: #c9943a; background: rgba(201,148,58,0.08); }
-.method-icon { font-size: 22px; margin-bottom: 5px; }
-.method-name { font-size: 0.8rem; font-weight: 500; color: #f0ece3; }
-.method-sub  { font-size: 0.68rem; color: #8a9ab5; margin-top: 2px; }
+    /* ── Payment method ── */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .method-card {
+      padding: 12px; border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 10px; cursor: pointer;
+      text-align: center; transition: all 0.2s;
+      background: rgba(255,255,255,0.02);
+    }
+    .method-card:hover  { border-color: rgba(201,148,58,0.4); }
+    .method-card.selected { border-color: #c9943a; background: rgba(201,148,58,0.08); }
+    .method-icon { font-size: 22px; margin-bottom: 5px; }
+    .method-name { font-size: 0.8rem; font-weight: 500; color: #f0ece3; }
+    .method-sub  { font-size: 0.68rem; color: #8a9ab5; margin-top: 2px; }
 
-/* ── Cash upload ── */
-.upload-zone {
-  border: 2px dashed rgba(201,148,58,0.2);
-  border-radius: 10px;
-  padding: 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  display: block;
-  -webkit-tap-highlight-color: transparent;
-}
-.upload-zone:hover { border-color: #c9943a; background: rgba(201,148,58,0.04); }
-.upload-zone.has-file { border-color: #4caf82; background: rgba(76,175,130,0.05); }
-.upload-icon  { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
-.upload-text  { font-size: 0.85rem; color: #8a9ab5; }
-.upload-hint  { font-size: 0.72rem; color: rgba(138,154,181,0.5); margin-top: 4px; }
-.upload-preview {
-  display: none;
-  margin-top: 0.75rem;
-}
-.upload-preview img {
-  max-height: 120px; border-radius: 8px;
-  border: 1px solid rgba(201,148,58,0.2);
-  object-fit: cover;
-}
-.upload-filename { font-size: 0.78rem; color: #4caf82; margin-top: 6px; }
+    /* ── Cash upload ── */
+    .upload-zone {
+      border: 2px dashed rgba(201,148,58,0.2);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      display: block;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .upload-zone:hover { border-color: #c9943a; background: rgba(201,148,58,0.04); }
+    .upload-zone.has-file { border-color: #4caf82; background: rgba(76,175,130,0.05); }
+    .upload-icon  { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+    .upload-text  { font-size: 0.85rem; color: #8a9ab5; }
+    .upload-hint  { font-size: 0.72rem; color: rgba(138,154,181,0.5); margin-top: 4px; }
+    .upload-preview {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .upload-preview img {
+      max-height: 120px; border-radius: 8px;
+      border: 1px solid rgba(201,148,58,0.2);
+      object-fit: cover;
+    }
+    .upload-filename { font-size: 0.78rem; color: #4caf82; margin-top: 6px; }
 
-/* ── Review summary ── */
-.review-row {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(201,148,58,0.07);
-  gap: 1rem;
-}
-.review-row:last-child { border-bottom: none; }
-.review-label { font-size: 0.78rem; color: #8a9ab5; flex-shrink: 0; }
-.review-val   { font-size: 0.85rem; font-weight: 500; color: #f0ece3; text-align: right; word-break: break-word; }
-.review-val.highlight { color: #e8b85a; font-size: 1rem; font-weight: 600; }
+    /* ── Review summary ── */
+    .review-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(201,148,58,0.07);
+      gap: 1rem;
+    }
+    .review-row:last-child { border-bottom: none; }
+    .review-label { font-size: 0.78rem; color: #8a9ab5; flex-shrink: 0; }
+    .review-val   { font-size: 0.85rem; font-weight: 500; color: #f0ece3; text-align: right; word-break: break-word; }
+    .review-val.highlight { color: #e8b85a; font-size: 1rem; font-weight: 600; }
 
-.review-total {
-  background: rgba(201,148,58,0.08);
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 10px;
-  padding: 1rem 1.1rem;
-  margin-top: 0.75rem;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.review-total-label { font-size: 0.8rem; color: #8a9ab5; }
-.review-total-val   { font-size: 1.2rem; font-weight: 700; color: #e8b85a; }
+    .review-total {
+      background: rgba(201,148,58,0.08);
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-top: 0.75rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .review-total-label { font-size: 0.8rem; color: #8a9ab5; }
+    .review-total-val   { font-size: 1.2rem; font-weight: 700; color: #e8b85a; }
 
-/* ── Buttons ── */
-.btn-row { display: flex; gap: 0.75rem; margin-top: 1.35rem; }
-.btn-back {
-  flex: 0 0 auto;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(201,148,58,0.2);
-  color: #8a9ab5; -webkit-text-fill-color: #8a9ab5;
-  border-radius: 9px;
-  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-  padding: 11px 20px; cursor: pointer; transition: all 0.2s;
-}
-.btn-back:hover { color: #f0ece3; -webkit-text-fill-color: #f0ece3; border-color: rgba(201,148,58,0.4); }
-.btn-primary {
-  flex: 1;
-  background: linear-gradient(135deg, #c9943a, #e8b85a);
-  color: #1a0e00; -webkit-text-fill-color: #1a0e00;
-  border: none; border-radius: 9px;
-  font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
-  padding: 12px; cursor: pointer; letter-spacing: 0.03em;
-  box-shadow: 0 4px 16px rgba(201,148,58,0.3);
-  transition: opacity 0.2s, transform 0.15s;
-  position: relative;
-}
-.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-.btn-primary .spinner {
-  display: none; width: 16px; height: 16px;
-  border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00;
-  border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.btn-primary.loading .btn-text { display: none; }
-.btn-primary.loading .spinner  { display: block; }
+    /* ── Buttons ── */
+    .btn-row { display: flex; gap: 0.75rem; margin-top: 1.35rem; }
+    .btn-back {
+      flex: 0 0 auto;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(201,148,58,0.2);
+      color: #8a9ab5; -webkit-text-fill-color: #8a9ab5;
+      border-radius: 9px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      padding: 11px 20px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-back:hover { color: #f0ece3; -webkit-text-fill-color: #f0ece3; border-color: rgba(201,148,58,0.4); }
+    .btn-primary {
+      flex: 1;
+      background: linear-gradient(135deg, #c9943a, #e8b85a);
+      color: #1a0e00; -webkit-text-fill-color: #1a0e00;
+      border: none; border-radius: 9px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+      padding: 12px; cursor: pointer; letter-spacing: 0.03em;
+      box-shadow: 0 4px 16px rgba(201,148,58,0.3);
+      transition: opacity 0.2s, transform 0.15s;
+      position: relative;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-primary .spinner {
+      display: none; width: 16px; height: 16px;
+      border: 2px solid rgba(26,14,0,0.3); border-top-color: #1a0e00;
+      border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-primary.loading .btn-text { display: none; }
+    .btn-primary.loading .spinner  { display: block; }
 
-/* ── Alert ── */
-.alert {
-  display: none; border-radius: 8px;
-  padding: 10px 13px; font-size: 0.82rem;
-  margin-top: 0.75rem; text-align: center;
-}
-.alert.error   { background: rgba(224,92,92,0.12); border: 1px solid rgba(224,92,92,0.3); color: #ff9a9a; }
-.alert.success { background: rgba(76,175,130,0.12); border: 1px solid rgba(76,175,130,0.3); color: #7de8b8; }
-.alert.show { display: block; }
+    /* ── Alert ── */
+    .alert {
+      display: none; border-radius: 8px;
+      padding: 10px 13px; font-size: 0.82rem;
+      margin-top: 0.75rem; text-align: center;
+    }
+    .alert.error   { background: rgba(224,92,92,0.12); border: 1px solid rgba(224,92,92,0.3); color: #ff9a9a; }
+    .alert.success { background: rgba(76,175,130,0.12); border: 1px solid rgba(76,175,130,0.3); color: #7de8b8; }
+    .alert.show { display: block; }
 
-/* ── Summary sidebar card ── */
-.summary-card {
-  background: #0f2040;
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 14px;
-  padding: 1.25rem;
-  position: sticky; top: 1.5rem;
-}
-.summary-title {
-  font-size: 0.7rem; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #c9943a;
-  margin-bottom: 1rem;
-  display: flex; align-items: center; gap: 8px;
-}
-.summary-title::after { content: ''; flex: 1; height: 1px; background: rgba(201,148,58,0.2); }
-.sum-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 5px 0; }
-.sum-label { color: #8a9ab5; }
-.sum-val   { color: #f0ece3; font-weight: 500; }
-.sum-divider { height: 1px; background: rgba(201,148,58,0.2); margin: 0.6rem 0; }
-.sum-total-label { color: #8a9ab5; font-size: 0.78rem; }
-.sum-total-val   { color: #e8b85a; font-size: 1.1rem; font-weight: 700; }
+    /* ── Summary sidebar card ── */
+    .summary-card {
+      background: #0f2040;
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 14px;
+      padding: 1.25rem;
+      position: sticky; top: 1.5rem;
+    }
+    .summary-title {
+      font-size: 0.7rem; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #c9943a;
+      margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .summary-title::after { content: ''; flex: 1; height: 1px; background: rgba(201,148,58,0.2); }
+    .sum-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 5px 0; }
+    .sum-label { color: #8a9ab5; }
+    .sum-val   { color: #f0ece3; font-weight: 500; }
+    .sum-divider { height: 1px; background: rgba(201,148,58,0.2); margin: 0.6rem 0; }
+    .sum-total-label { color: #8a9ab5; font-size: 0.78rem; }
+    .sum-total-val   { color: #e8b85a; font-size: 1.1rem; font-weight: 700; }
 
-/* ── Success screen ── */
-.success-screen {
-  text-align: center; padding: 2rem 1rem;
-}
-.success-icon {
-  width: 72px; height: 72px; border-radius: 50%;
-  background: rgba(76,175,130,0.15);
-  border: 2px solid #4caf82;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin: 0 auto 1.25rem;
-  animation: pop 0.4s cubic-bezier(0.22,1,0.36,1);
-}
-@keyframes pop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.success-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.4rem; }
-.success-sub   { font-size: 0.85rem; color: #8a9ab5; margin-bottom: 1.25rem; }
-.ref-box {
-  background: rgba(201,148,58,0.08);
-  border: 1px solid rgba(201,148,58,0.2);
-  border-radius: 10px; padding: 0.9rem 1.1rem;
-  margin: 0 auto 1.5rem; max-width: 280px;
-}
-.ref-label { font-size: 0.68rem; color: #8a9ab5; text-transform: uppercase; letter-spacing: 0.08em; }
-.ref-code  { font-size: 1.1rem; font-weight: 700; color: #e8b85a; letter-spacing: 0.1em; margin-top: 3px; }
-.btn-ghost {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(201,148,58,0.2);
-  color: #f0ece3; border-radius: 9px;
-  font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
-  padding: 10px 20px; cursor: pointer; margin: 0 0.3rem;
-  transition: all 0.2s;
-}
-.btn-ghost:hover { border-color: rgba(201,148,58,0.4); }
+    /* ── Success screen ── */
+    .success-screen {
+      text-align: center; padding: 2rem 1rem;
+    }
+    .success-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(76,175,130,0.15);
+      border: 2px solid #4caf82;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; margin: 0 auto 1.25rem;
+      animation: pop 0.4s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes pop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .success-sub   { font-size: 0.85rem; color: #8a9ab5; margin-bottom: 1.25rem; }
+    .ref-box {
+      background: rgba(201,148,58,0.08);
+      border: 1px solid rgba(201,148,58,0.2);
+      border-radius: 10px; padding: 0.9rem 1.1rem;
+      margin: 0 auto 1.5rem; max-width: 280px;
+    }
+    .ref-label { font-size: 0.68rem; color: #8a9ab5; text-transform: uppercase; letter-spacing: 0.08em; }
+    .ref-code  { font-size: 1.1rem; font-weight: 700; color: #e8b85a; letter-spacing: 0.1em; margin-top: 3px; }
+    .btn-ghost {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(201,148,58,0.2);
+      color: #f0ece3; border-radius: 9px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      padding: 10px 20px; cursor: pointer; margin: 0 0.3rem;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(201,148,58,0.4); }
 
-/* ── Responsive ── */
-@media (max-width: 860px) {
-  .send-layout { grid-template-columns: 1fr; }
-  .summary-card { position: static; }
-  .field-row-3 { grid-template-columns: 1fr 1fr; }
-}
-@media (max-width: 680px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main {
-    margin-left: 0;
-    width: 100%;
-    padding: 4.75rem 0.9rem 5rem;
-  }
-  .mobile-header { display: flex; }
-  .method-grid { grid-template-columns: 1fr 1fr; }
-  .send-layout { grid-template-columns: 1fr; gap: 0.85rem; }
-  .summary-card { position: static; }
-  .page-title { font-size: 1.3rem; }
-}
-@media (max-width: 420px) {
-  .field-row, .field-row-3 { grid-template-columns: 1fr; }
-  .method-grid { grid-template-columns: 1fr 1fr; }
-  .main { padding: 4.5rem 0.75rem 5rem; }
-}
-```
+    /* ── Responsive ── */
 
+    /* Mobile */
+    @media (max-width: 680px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; padding: 4.75rem 0.9rem 5rem; }
+      .mobile-header { display: flex; }
+      .method-grid { grid-template-columns: 1fr 1fr; }
+      .send-layout { grid-template-columns: 1fr; gap: 0.85rem; }
+      .summary-card { position: static; }
+      .page-title { font-size: 1.3rem; }
+    }
+    @media (max-width: 420px) {
+      .field-row, .field-row-3 { grid-template-columns: 1fr; }
+      .method-grid { grid-template-columns: 1fr 1fr; }
+      .main { padding: 4.5rem 0.75rem 5rem; }
+    }
+
+    /* Tablet */
+    @media (min-width: 681px) and (max-width: 860px) {
+      .sidebar { transform: translateX(0); }
+      .main { margin-left: 240px; width: calc(100% - 240px); padding: 1.5rem 1.25rem 3rem; }
+      .mobile-header { display: none; }
+      .send-layout { grid-template-columns: 1fr; }
+      .summary-card { position: static; }
+      .field-row-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* PC / Desktop */
+    @media (min-width: 861px) {
+      .sidebar { transform: translateX(0); }
+      .main { margin-left: 240px; width: calc(100% - 240px); padding: 2rem 1.75rem 3rem; }
+      .mobile-header { display: none; }
+      .send-layout { grid-template-columns: 1fr 320px; }
+      .summary-card { position: sticky; top: 1.5rem; }
+    }
+    @media (min-width: 1280px) {
+      .main { padding: 2.5rem 2.5rem 3rem; }
+      .send-layout { grid-template-columns: 1fr 360px; }
+    }
+    @media (min-width: 1600px) {
+      .main { margin-left: 260px; width: calc(100% - 260px); padding: 2.5rem 3rem 3rem; }
+      .send-layout { grid-template-columns: 1fr 400px; }
+    }
   </style>
 </head>
 <body>
@@ -520,7 +543,6 @@ input:focus, select:focus, textarea:focus {
   <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
 
   <!-- Sidebar -->
-
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">⚓</div>
@@ -551,316 +573,308 @@ input:focus, select:focus, textarea:focus {
   </aside>
 
   <!-- Mobile header -->
-
   <div class="mobile-header">
     <button class="hamburger" onclick="openSidebar()">☰</button>
     <span class="mobile-logo">💸 Send Money</span>
   </div>
 
   <!-- Main -->
-
   <main class="main">
 
-```
-<div class="page-header">
-  <a class="back-link" href="dashboard.html">← Back to Dashboard</a>
-  <div class="page-title">Send Money</div>
-  <div class="page-subtitle">Transfer funds to your family back home</div>
-</div>
-
-<!-- Progress bar -->
-<div class="progress-bar">
-  <div class="pb-step active" id="pi1"><div class="pb-circle" id="pc1">1</div><div class="pb-label">Amount</div></div>
-  <div class="pb-line" id="pl1"></div>
-  <div class="pb-step" id="pi2"><div class="pb-circle" id="pc2">2</div><div class="pb-label">Recipient</div></div>
-  <div class="pb-line" id="pl2"></div>
-  <div class="pb-step" id="pi3"><div class="pb-circle" id="pc3">3</div><div class="pb-label">Payment</div></div>
-  <div class="pb-line" id="pl3"></div>
-  <div class="pb-step" id="pi4"><div class="pb-circle" id="pc4">4</div><div class="pb-label">Review</div></div>
-</div>
-
-<div class="send-layout">
-
-  <!-- Left: panels -->
-  <div>
-
-    <!-- Panel 1: Amount -->
-    <div class="card panel active" id="panel1">
-      <div class="card-head"><span class="head-icon">💵</span><h3>How much are you sending?</h3></div>
-      <div class="card-body">
-
-        <div class="field">
-          <label>Send Amount (USD)</label>
-          <div class="amount-wrap">
-            <span class="amount-currency">$</span>
-            <input class="amount-input" type="number" id="sendAmount" placeholder="0.00" min="10" max="5000" step="0.01" oninput="updateConversion()"/>
-          </div>
-        </div>
-
-        <div class="conversion-box">
-          <div class="conv-side">
-            <div class="conv-amount" id="convSend">$ 0.00</div>
-            <div class="conv-label">You send (USD)</div>
-          </div>
-          <div class="conv-arrow">→</div>
-          <div class="conv-side">
-            <div class="conv-amount" id="convReceive">₱ 0.00</div>
-            <div class="conv-label">They receive (PHP)</div>
-          </div>
-        </div>
-        <div class="conv-rate" id="rateNote">Rate: 1 USD = ₱ <span id="rateDisplay">56.20</span> · Updated just now</div>
-
-        <!-- Balance indicator -->
-        <div id="balanceBar" style="display:flex;justify-content:space-between;align-items:center;background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:8px;padding:8px 12px;margin-top:0.75rem;font-size:0.82rem;">
-          <span style="color:#8a9ab5">💰 Your balance</span>
-          <span id="balanceDisplay" style="color:#4caf82;font-weight:600">$0.00</span>
-        </div>
-
-        <div style="margin-top:1rem;">
-          <div class="fee-row"><span class="fee-label">Send amount</span><span class="fee-val" id="feeBase">$ 0.00</span></div>
-          <div class="fee-row"><span class="fee-label">Service fee</span><span class="fee-val" id="feeAmt">$ 0.00</span></div>
-          <div class="fee-row"><span class="fee-label">Total you pay</span><span class="fee-val total" id="feeTotal">$ 0.00</span></div>
-        </div>
-
-        <div class="alert error" id="alert1"></div>
-        <div class="btn-row">
-          <button class="btn-primary" onclick="goPanel(2)"><span class="btn-text">Continue →</span></button>
-        </div>
-      </div>
+    <div class="page-header">
+      <a class="back-link" href="dashboard.html">← Back to Dashboard</a>
+      <div class="page-title">Send Money</div>
+      <div class="page-subtitle">Transfer funds to your family back home</div>
     </div>
 
-    <!-- Panel 2: Recipient -->
-    <div class="card panel" id="panel2">
-      <div class="card-head"><span class="head-icon">👥</span><h3>Who are you sending to?</h3></div>
-      <div class="card-body">
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="pb-step active" id="pi1"><div class="pb-circle" id="pc1">1</div><div class="pb-label">Amount</div></div>
+      <div class="pb-line" id="pl1"></div>
+      <div class="pb-step" id="pi2"><div class="pb-circle" id="pc2">2</div><div class="pb-label">Recipient</div></div>
+      <div class="pb-line" id="pl2"></div>
+      <div class="pb-step" id="pi3"><div class="pb-circle" id="pc3">3</div><div class="pb-label">Payment</div></div>
+      <div class="pb-line" id="pl3"></div>
+      <div class="pb-step" id="pi4"><div class="pb-circle" id="pc4">4</div><div class="pb-label">Review</div></div>
+    </div>
 
-        <div class="recipient-list" id="recipientList">
-          <!-- Populated by JS -->
-        </div>
+    <div class="send-layout">
 
-        <button class="add-recipient-btn" onclick="toggleNewRecipient()">
-          <span>＋</span> Add new recipient
-        </button>
+      <!-- Left: panels -->
+      <div>
 
-        <!-- New recipient form -->
-        <div id="newRecipientForm" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(201,148,58,0.2);">
-          <div style="font-size:0.75rem;color:#c9943a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.9rem;">New Recipient</div>
+        <!-- Panel 1: Amount -->
+        <div class="card panel active" id="panel1">
+          <div class="card-head"><span class="head-icon">💵</span><h3>How much are you sending?</h3></div>
+          <div class="card-body">
 
-          <div class="field-row">
             <div class="field">
-              <label>Full Name</label>
-              <div class="input-wrap"><span class="icon">👤</span>
-                <input type="text" id="recName" placeholder="Juan dela Cruz"/>
+              <label>Send Amount (USD)</label>
+              <div class="amount-wrap">
+                <span class="amount-currency">$</span>
+                <input class="amount-input" type="number" id="sendAmount" placeholder="0.00" min="10" max="5000" step="0.01" oninput="updateConversion()"/>
               </div>
             </div>
+
+            <div class="conversion-box">
+              <div class="conv-side">
+                <div class="conv-amount" id="convSend">$ 0.00</div>
+                <div class="conv-label">You send (USD)</div>
+              </div>
+              <div class="conv-arrow">→</div>
+              <div class="conv-side">
+                <div class="conv-amount" id="convReceive">₱ 0.00</div>
+                <div class="conv-label">They receive (PHP)</div>
+              </div>
+            </div>
+            <div class="conv-rate" id="rateNote">Rate: 1 USD = ₱ <span id="rateDisplay">56.20</span> · Updated just now</div>
+
+            <!-- Balance indicator -->
+            <div id="balanceBar" style="display:flex;justify-content:space-between;align-items:center;background:rgba(76,175,130,0.08);border:1px solid rgba(76,175,130,0.2);border-radius:8px;padding:8px 12px;margin-top:0.75rem;font-size:0.82rem;">
+              <span style="color:#8a9ab5">💰 Your balance</span>
+              <span id="balanceDisplay" style="color:#4caf82;font-weight:600">$0.00</span>
+            </div>
+
+            <div style="margin-top:1rem;">
+              <div class="fee-row"><span class="fee-label">Send amount</span><span class="fee-val" id="feeBase">$ 0.00</span></div>
+              <div class="fee-row"><span class="fee-label">Service fee</span><span class="fee-val" id="feeAmt">$ 0.00</span></div>
+              <div class="fee-row"><span class="fee-label">Total you pay</span><span class="fee-val total" id="feeTotal">$ 0.00</span></div>
+            </div>
+
+            <div class="alert error" id="alert1"></div>
+            <div class="btn-row">
+              <button class="btn-primary" onclick="goPanel(2)"><span class="btn-text">Continue →</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Recipient -->
+        <div class="card panel" id="panel2">
+          <div class="card-head"><span class="head-icon">👥</span><h3>Who are you sending to?</h3></div>
+          <div class="card-body">
+
+            <div class="recipient-list" id="recipientList">
+              <!-- Populated by JS -->
+            </div>
+
+            <button class="add-recipient-btn" onclick="toggleNewRecipient()">
+              <span>＋</span> Add new recipient
+            </button>
+
+            <!-- New recipient form -->
+            <div id="newRecipientForm" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(201,148,58,0.2);">
+              <div style="font-size:0.75rem;color:#c9943a;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.9rem;">New Recipient</div>
+
+              <div class="field-row">
+                <div class="field">
+                  <label>Full Name</label>
+                  <div class="input-wrap"><span class="icon">👤</span>
+                    <input type="text" id="recName" placeholder="Juan dela Cruz"/>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Relationship</label>
+                  <div class="input-wrap select-wrap"><span class="icon">💑</span>
+                    <select id="recRelation">
+                      <option value="">Select...</option>
+                      <option>Spouse / Partner</option>
+                      <option>Parent</option>
+                      <option>Child</option>
+                      <option>Sibling</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Mobile Number</label>
+                <div class="input-wrap"><span class="icon">📱</span>
+                  <input type="tel" id="recMobile" placeholder="+63 9XX XXX XXXX"/>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Bank / E-wallet</label>
+                <div class="input-wrap select-wrap"><span class="icon">🏦</span>
+                  <select id="recBank">
+                    <option value="">Select bank or e-wallet...</option>
+                    <optgroup label="Banks">
+                      <option>BDO</option><option>BPI</option><option>Metrobank</option>
+                      <option>Landbank</option><option>UnionBank</option><option>PNB</option>
+                      <option>RCBC</option><option>Security Bank</option><option>Eastwest Bank</option>
+                    </optgroup>
+                    <optgroup label="E-Wallets">
+                      <option>GCash</option><option>Maya (PayMaya)</option>
+                      <option>ShopeePay</option><option>Coins.ph</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Account Number</label>
+                <div class="input-wrap"><span class="icon">🔢</span>
+                  <input type="text" id="recAccount" placeholder="Account / GCash number"/>
+                </div>
+              </div>
+
+              <button class="btn-primary" style="width:100%;margin-top:0.25rem;" onclick="saveNewRecipient()">
+                <span class="btn-text">Save Recipient</span>
+                <span class="spinner"></span>
+              </button>
+            </div>
+
+            <div class="alert error" id="alert2"></div>
+            <div class="btn-row">
+              <button class="btn-back" onclick="goPanel(1)">← Back</button>
+              <button class="btn-primary" onclick="goPanel(3)"><span class="btn-text">Continue →</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Payment -->
+        <div class="card panel" id="panel3">
+          <div class="card-head"><span class="head-icon">💳</span><h3>How will you pay?</h3></div>
+          <div class="card-body">
+
             <div class="field">
-              <label>Relationship</label>
-              <div class="input-wrap select-wrap"><span class="icon">💑</span>
-                <select id="recRelation">
-                  <option value="">Select...</option>
-                  <option>Spouse / Partner</option>
-                  <option>Parent</option>
-                  <option>Child</option>
-                  <option>Sibling</option>
-                  <option>Other</option>
-                </select>
+              <label>Payment Method</label>
+              <div class="method-grid">
+                <div class="method-card selected" id="method-cash" onclick="selectMethod('cash')">
+                  <div class="method-icon">💵</div>
+                  <div class="method-name">Cash</div>
+                  <div class="method-sub">Pay via cash photo</div>
+                </div>
+                <div class="method-card" id="method-gcash" onclick="selectMethod('gcash')">
+                  <div class="method-icon">📱</div>
+                  <div class="method-name">GCash</div>
+                  <div class="method-sub">Send via GCash</div>
+                </div>
+                <div class="method-card" id="method-bank" onclick="selectMethod('bank')">
+                  <div class="method-icon">🏦</div>
+                  <div class="method-name">Bank Transfer</div>
+                  <div class="method-sub">Direct bank send</div>
+                </div>
+                <div class="method-card" id="method-remit" onclick="selectMethod('remit')">
+                  <div class="method-icon">🏪</div>
+                  <div class="method-name">Remittance Center</div>
+                  <div class="method-sub">Western Union etc.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cash photo upload -->
+            <div id="cashUploadSection" class="field">
+              <label>Upload Cash Photo</label>
+              <label class="upload-zone" id="uploadZone" for="cashPhoto">
+                <input type="file" id="cashPhoto" accept="image/*" onchange="handlePhotoUpload(event)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"/>
+                <span class="upload-icon">📷</span>
+                <div class="upload-text">Tap to take a photo or choose from library</div>
+                <div class="upload-hint">JPG, PNG · Max 5MB</div>
+              </label>
+              <div class="upload-preview" id="uploadPreview">
+                <img id="previewImg" src="" alt="Cash photo"/>
+                <div class="upload-filename" id="uploadFilename"></div>
+                <button type="button" onclick="clearPhoto()" style="margin-top:6px;background:none;border:1px solid rgba(201,148,58,0.2);color:#8a9ab5;border-radius:6px;padding:4px 10px;font-size:0.75rem;cursor:pointer;">✕ Remove photo</button>
+              </div>
+            </div>
+
+            <!-- GCash ref -->
+            <div id="gcashSection" class="field" style="display:none">
+              <label>GCash Reference No.</label>
+              <div class="input-wrap"><span class="icon">🔢</span>
+                <input type="text" id="gcashRef" placeholder="13-digit reference number"/>
+              </div>
+            </div>
+
+            <!-- Bank ref -->
+            <div id="bankSection" class="field" style="display:none">
+              <label>Bank Reference / Transaction No.</label>
+              <div class="input-wrap"><span class="icon">🔢</span>
+                <input type="text" id="bankRef" placeholder="Reference number"/>
+              </div>
+            </div>
+
+            <!-- Remit center -->
+            <div id="remitSection" class="field" style="display:none">
+              <label>Control / MTCN Number</label>
+              <div class="input-wrap"><span class="icon">🔢</span>
+                <input type="text" id="remitRef" placeholder="Money transfer control number"/>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Notes (optional)</label>
+              <div class="input-wrap"><span class="icon">📝</span>
+                <textarea id="txNotes" placeholder="e.g. For this month's allowance..."></textarea>
+              </div>
+            </div>
+
+            <div class="alert error" id="alert3"></div>
+            <div class="btn-row">
+              <button class="btn-back" onclick="goPanel(2)">← Back</button>
+              <button class="btn-primary" onclick="goPanel(4)"><span class="btn-text">Review →</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: Review -->
+        <div class="card panel" id="panel4">
+          <div class="card-head"><span class="head-icon">📋</span><h3>Review your transaction</h3></div>
+          <div class="card-body" id="reviewBody">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Panel 5: Success -->
+        <div class="card panel" id="panel5">
+          <div class="card-body">
+            <div class="success-screen">
+              <div class="success-icon">✓</div>
+              <div class="success-title">Transaction Submitted!</div>
+              <div class="success-sub">Your remittance is being processed.<br>Your family will be notified.</div>
+              <div class="ref-box">
+                <div class="ref-label">Reference Number</div>
+                <div class="ref-code" id="refCode">SR-XXXXXXXX</div>
+              </div>
+              <div>
+                <button class="btn-ghost" onclick="location.href='transactions.html'">📋 View Transactions</button>
+                <button class="btn-ghost" onclick="resetForm()">💸 Send Again</button>
               </div>
             </div>
           </div>
-
-          <div class="field">
-            <label>Mobile Number</label>
-            <div class="input-wrap"><span class="icon">📱</span>
-              <input type="tel" id="recMobile" placeholder="+63 9XX XXX XXXX"/>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Bank / E-wallet</label>
-            <div class="input-wrap select-wrap"><span class="icon">🏦</span>
-              <select id="recBank">
-                <option value="">Select bank or e-wallet...</option>
-                <optgroup label="Banks">
-                  <option>BDO</option><option>BPI</option><option>Metrobank</option>
-                  <option>Landbank</option><option>UnionBank</option><option>PNB</option>
-                  <option>RCBC</option><option>Security Bank</option><option>Eastwest Bank</option>
-                </optgroup>
-                <optgroup label="E-Wallets">
-                  <option>GCash</option><option>Maya (PayMaya)</option>
-                  <option>ShopeePay</option><option>Coins.ph</option>
-                </optgroup>
-              </select>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Account Number</label>
-            <div class="input-wrap"><span class="icon">🔢</span>
-              <input type="text" id="recAccount" placeholder="Account / GCash number"/>
-            </div>
-          </div>
-
-          <button class="btn-primary" style="width:100%;margin-top:0.25rem;" onclick="saveNewRecipient()">
-            <span class="btn-text">Save Recipient</span>
-            <span class="spinner"></span>
-          </button>
         </div>
 
-        <div class="alert error" id="alert2"></div>
-        <div class="btn-row">
-          <button class="btn-back" onclick="goPanel(1)">← Back</button>
-          <button class="btn-primary" onclick="goPanel(3)"><span class="btn-text">Continue →</span></button>
+      </div>
+
+      <!-- Right: live summary -->
+      <div>
+        <div class="summary-card">
+          <div class="summary-title">Transaction Summary</div>
+          <div class="sum-row"><span class="sum-label">Your balance</span><span class="sum-val" id="sumBalance" style="color:#4caf82">—</span></div>
+          <div class="sum-row"><span class="sum-label">You send</span><span class="sum-val" id="sumSend">—</span></div>
+          <div class="sum-row"><span class="sum-label">They receive</span><span class="sum-val" id="sumReceive">—</span></div>
+          <div class="sum-row"><span class="sum-label">Exchange rate</span><span class="sum-val" id="sumRate">—</span></div>
+          <div class="sum-row"><span class="sum-label">Service fee</span><span class="sum-val" id="sumFee">—</span></div>
+          <div class="sum-divider"></div>
+          <div class="sum-row">
+            <span class="sum-total-label">Total you pay</span>
+            <span class="sum-total-val" id="sumTotal">—</span>
+          </div>
+          <div class="sum-divider"></div>
+          <div class="sum-row"><span class="sum-label">Recipient</span><span class="sum-val" id="sumRecipient">—</span></div>
+          <div class="sum-row"><span class="sum-label">Bank / Wallet</span><span class="sum-val" id="sumBank">—</span></div>
+          <div class="sum-row"><span class="sum-label">Payment via</span><span class="sum-val" id="sumMethod">—</span></div>
         </div>
       </div>
+
     </div>
-
-    <!-- Panel 3: Payment -->
-    <div class="card panel" id="panel3">
-      <div class="card-head"><span class="head-icon">💳</span><h3>How will you pay?</h3></div>
-      <div class="card-body">
-
-        <div class="field">
-          <label>Payment Method</label>
-          <div class="method-grid">
-            <div class="method-card selected" id="method-cash" onclick="selectMethod('cash')">
-              <div class="method-icon">💵</div>
-              <div class="method-name">Cash</div>
-              <div class="method-sub">Pay via cash photo</div>
-            </div>
-            <div class="method-card" id="method-gcash" onclick="selectMethod('gcash')">
-              <div class="method-icon">📱</div>
-              <div class="method-name">GCash</div>
-              <div class="method-sub">Send via GCash</div>
-            </div>
-            <div class="method-card" id="method-bank" onclick="selectMethod('bank')">
-              <div class="method-icon">🏦</div>
-              <div class="method-name">Bank Transfer</div>
-              <div class="method-sub">Direct bank send</div>
-            </div>
-            <div class="method-card" id="method-remit" onclick="selectMethod('remit')">
-              <div class="method-icon">🏪</div>
-              <div class="method-name">Remittance Center</div>
-              <div class="method-sub">Western Union etc.</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cash photo upload -->
-        <div id="cashUploadSection" class="field">
-          <label>Upload Cash Photo</label>
-          <label class="upload-zone" id="uploadZone" for="cashPhoto">
-            <input type="file" id="cashPhoto" accept="image/*" onchange="handlePhotoUpload(event)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"/>
-            <span class="upload-icon">📷</span>
-            <div class="upload-text">Tap to take a photo or choose from library</div>
-            <div class="upload-hint">JPG, PNG · Max 5MB</div>
-          </label>
-          <div class="upload-preview" id="uploadPreview">
-            <img id="previewImg" src="" alt="Cash photo"/>
-            <div class="upload-filename" id="uploadFilename"></div>
-            <button type="button" onclick="clearPhoto()" style="margin-top:6px;background:none;border:1px solid rgba(201,148,58,0.2);color:#8a9ab5;border-radius:6px;padding:4px 10px;font-size:0.75rem;cursor:pointer;">✕ Remove photo</button>
-          </div>
-        </div>
-
-        <!-- GCash ref -->
-        <div id="gcashSection" class="field" style="display:none">
-          <label>GCash Reference No.</label>
-          <div class="input-wrap"><span class="icon">🔢</span>
-            <input type="text" id="gcashRef" placeholder="13-digit reference number"/>
-          </div>
-        </div>
-
-        <!-- Bank ref -->
-        <div id="bankSection" class="field" style="display:none">
-          <label>Bank Reference / Transaction No.</label>
-          <div class="input-wrap"><span class="icon">🔢</span>
-            <input type="text" id="bankRef" placeholder="Reference number"/>
-          </div>
-        </div>
-
-        <!-- Remit center -->
-        <div id="remitSection" class="field" style="display:none">
-          <label>Control / MTCN Number</label>
-          <div class="input-wrap"><span class="icon">🔢</span>
-            <input type="text" id="remitRef" placeholder="Money transfer control number"/>
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Notes (optional)</label>
-          <div class="input-wrap"><span class="icon">📝</span>
-            <textarea id="txNotes" placeholder="e.g. For this month's allowance..."></textarea>
-          </div>
-        </div>
-
-        <div class="alert error" id="alert3"></div>
-        <div class="btn-row">
-          <button class="btn-back" onclick="goPanel(2)">← Back</button>
-          <button class="btn-primary" onclick="goPanel(4)"><span class="btn-text">Review →</span></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel 4: Review -->
-    <div class="card panel" id="panel4">
-      <div class="card-head"><span class="head-icon">📋</span><h3>Review your transaction</h3></div>
-      <div class="card-body" id="reviewBody">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-
-    <!-- Panel 5: Success -->
-    <div class="card panel" id="panel5">
-      <div class="card-body">
-        <div class="success-screen">
-          <div class="success-icon">✓</div>
-          <div class="success-title">Transaction Submitted!</div>
-          <div class="success-sub">Your remittance is being processed.<br>Your family will be notified.</div>
-          <div class="ref-box">
-            <div class="ref-label">Reference Number</div>
-            <div class="ref-code" id="refCode">SR-XXXXXXXX</div>
-          </div>
-          <div>
-            <button class="btn-ghost" onclick="location.href='transactions.html'">📋 View Transactions</button>
-            <button class="btn-ghost" onclick="resetForm()">💸 Send Again</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Right: live summary -->
-  <div>
-    <div class="summary-card">
-      <div class="summary-title">Transaction Summary</div>
-      <div class="sum-row"><span class="sum-label">Your balance</span><span class="sum-val" id="sumBalance" style="color:#4caf82">—</span></div>
-      <div class="sum-row"><span class="sum-label">You send</span><span class="sum-val" id="sumSend">—</span></div>
-      <div class="sum-row"><span class="sum-label">They receive</span><span class="sum-val" id="sumReceive">—</span></div>
-      <div class="sum-row"><span class="sum-label">Exchange rate</span><span class="sum-val" id="sumRate">—</span></div>
-      <div class="sum-row"><span class="sum-label">Service fee</span><span class="sum-val" id="sumFee">—</span></div>
-      <div class="sum-divider"></div>
-      <div class="sum-row">
-        <span class="sum-total-label">Total you pay</span>
-        <span class="sum-total-val" id="sumTotal">—</span>
-      </div>
-      <div class="sum-divider"></div>
-      <div class="sum-row"><span class="sum-label">Recipient</span><span class="sum-val" id="sumRecipient">—</span></div>
-      <div class="sum-row"><span class="sum-label">Bank / Wallet</span><span class="sum-val" id="sumBank">—</span></div>
-      <div class="sum-row"><span class="sum-label">Payment via</span><span class="sum-val" id="sumMethod">—</span></div>
-    </div>
-  </div>
-
-</div>
-```
-
   </main>
 
   <!-- Firebase -->
-
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
@@ -1290,6 +1304,12 @@ input:focus, select:focus, textarea:focus {
       if (h) h.classList.remove('hide');
     }
   </script>
-
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js', { scope: '/' })
+        .then(reg => console.log('[PWA] SW registered:', reg.scope))
+        .catch(err => console.warn('[PWA] SW failed:', err));
+    }
+  </script>
 </body>
 </html>
