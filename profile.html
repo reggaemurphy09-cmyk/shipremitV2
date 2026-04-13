@@ -826,16 +826,23 @@ select option { background: #0f2040; color: #f0ece3; }
     async function uploadPhoto(event) {
       const file = event.target.files[0];
       if (!file) return;
-      if (file.size > 5 * 1024 * 1024) { alert('File too large. Max 5MB.'); return; }
+      if (file.size > 10 * 1024 * 1024) { alert('File too large. Max 10MB.'); return; }
 
-      const spinner = document.getElementById('uploadSpinner');
+      const spinner  = document.getElementById('uploadSpinner');
       const avatarEl = document.getElementById('avatarEl');
+      const hint     = document.querySelector('.avatar-upload-hint');
+
       spinner.style.display = 'block';
       avatarEl.style.opacity = '0.5';
+      hint.textContent = '⏳ Uploading...';
 
       try {
+        // Compress image to max 400x400 and 80% quality before upload
+        const compressed = await compressImage(file, 400, 0.8);
+
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('image', compressed);
+
         const res  = await fetch('https://api.imgbb.com/1/upload?key=7a6b8c43b67ce45e354763c86371b2e1', {
           method: 'POST', body: formData
         });
@@ -857,7 +864,31 @@ select option { background: #0f2040; color: #f0ece3; }
 
       spinner.style.display = 'none';
       avatarEl.style.opacity = '1';
+      hint.textContent = '📷 Tap to change photo';
       event.target.value = '';
+    }
+
+    // Compress image using canvas before upload
+    function compressImage(file, maxSize, quality) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            // Scale down to maxSize
+            if (w > h && w > maxSize) { h = (h * maxSize) / w; w = maxSize; }
+            else if (h > maxSize)     { w = (w * maxSize) / h; h = maxSize; }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            canvas.toBlob(resolve, 'image/jpeg', quality);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
     // ── Alert helpers ─────────────────────────────────────────────────────────
